@@ -110,7 +110,7 @@ typedef int wbArg_t;
 
 char * filen[2];
 
-int wbArg_read(int argc __attribute__((unused)), char * argv[] __attribute__((unused))) {
+int wbArg_read(int argc, char * argv[]) {
 	if (argc< 2) {
 		fprintf(stderr, "wrong number of args, requires 2\n");
 		exit(-1);
