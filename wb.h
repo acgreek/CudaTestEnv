@@ -59,7 +59,7 @@ Block_t getBlockDim() {
 	return g_blockDim;
 }
 
-static int g_num_threads; 
+static int g_num_threads;
 
 boost::shared_ptr<boost::barrier> g_barrierp;
 boost::shared_ptr<boost::barrier> g_barrier_2p;
@@ -73,13 +73,13 @@ int b_phase2=0;
 void __syncthreads() {
 	Block_t bl = getThreadIdx() ;
 	CudaThreadLocal  *p = tls.get();
-		
+
 //	printf("thread %d %d is waiting on barrier 1\n", bl.x, bl.y);
-	g_barrierp->wait(); 
+	g_barrierp->wait();
 	{
 		boost::mutex::scoped_lock lock( g_b_mutex1);
 		if (b_phase1 == p->phase1) {
-			g_barrier_2p.reset ( new boost::barrier ( g_num_threads )) ; 
+			g_barrier_2p.reset ( new boost::barrier ( g_num_threads )) ;
 			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
 			b_phase1++;
 		}
@@ -87,11 +87,11 @@ void __syncthreads() {
 
 	}
 //	printf("thread %d %d is done waiting on barrier 1\n", bl.x, bl.y);
-	g_barrier_2p->wait(); 
+	g_barrier_2p->wait();
 	{
 		boost::mutex::scoped_lock lock( g_b_mutex2);
 		if (b_phase2 == p->phase2) {
-			g_barrierp.reset ( new boost::barrier ( g_num_threads )) ; 
+			g_barrierp.reset ( new boost::barrier ( g_num_threads )) ;
 			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
 			b_phase2++;
 		}
@@ -125,7 +125,7 @@ char *wbArg_getInputFile(int v __attribute__((unused)) , int index) {
 	return filen[index];
 }
 
-//* read the file int to 2 dimensional array 
+//* read the file int to 2 dimensional array
 void * wbImport(const char * filename, int *rowp, int *columnp)    {
 
 	int r_row=10;
@@ -135,7 +135,7 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 
 	float *arrayp = (float *) malloc(sizeof(float) * r_row * r_column);
 
-	FILE * f =fopen (filename, "r"); 
+	FILE * f =fopen (filename, "r");
 	if (NULL == f) {
 		fprintf(stderr, "failed to open file: %s\n",filename);
 		exit(-1);
@@ -148,21 +148,21 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 		if (strlen(line) == 0)
 			continue;
 		char * c;
-		c = strtok(line, " "); 
-		
+		c = strtok(line, " ");
+
 		do {
-			
-			int num = atoi(c); 
+
+			int num = atoi(c);
 			arrayp[(max_column * a_row) + a_column] = num;
 			a_column++;
 			if (a_column == r_column) {
 				r_column *=2;
 				arrayp = (float *) realloc(arrayp, sizeof(float) * r_row * r_column);
 			}
-			c = strtok(NULL, " "); 
+			c = strtok(NULL, " ");
 
 		} while (NULL != c);
-		
+
 		a_row++;
 		max_column = a_column;
 		printf ("\n");
@@ -172,13 +172,13 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 			arrayp = (float *) realloc(arrayp, sizeof(float) * r_row * r_column);
 		}
 	}
-			
+
 	fclose(f);
 	(*rowp)= a_row;
 	(*columnp) = a_column;
 	return arrayp;
 }
-//* read the file int to one dimensional array 
+//* read the file int to one dimensional array
 void * wbImport(const char * filename, int *array_sizep)    {
 
 	int r_column=10;
@@ -186,7 +186,7 @@ void * wbImport(const char * filename, int *array_sizep)    {
 
 	float *arrayp = (float *) malloc(sizeof(float) * r_column);
 
-	FILE * f =fopen (filename, "r"); 
+	FILE * f =fopen (filename, "r");
 	if (NULL == f) {
 		fprintf(stderr, "failed to open file: %s\n",filename);
 		exit(-1);
@@ -196,23 +196,23 @@ void * wbImport(const char * filename, int *array_sizep)    {
 	if (0 <fgets(line, sizeof(line) -1, f)) {
 		a_column = 0 ;
 		char * c;
-		c = strtok(line, " "); 
-		
+		c = strtok(line, " ");
+
 		do {
-			
-			int num = atoi(c); 
+
+			int num = atoi(c);
 			arrayp[a_column] = num;
 			a_column++;
 			if (a_column == r_column) {
 				r_column *=2;
 				arrayp = (float *) realloc(arrayp, sizeof(float) * r_column);
 			}
-			c = strtok(NULL, " "); 
+			c = strtok(NULL, " ");
 
 		} while (NULL != c);
-		
+
 	}
-			
+
 	fclose(f);
 	(*array_sizep) = a_column;
 	return arrayp;
@@ -227,7 +227,7 @@ void wbTime_stop(...) {
 }
 
 
-#define ERROR 0 
+#define ERROR 0
 #define TRACE 1
 #define DEBUG 2
 
@@ -264,7 +264,7 @@ void cudaThreadSynchronize() {
 
 typedef struct _dim3 {
 	int x_;
-	int y_; 
+	int y_;
 	int z_;
 	_dim3(int  x, int y, int z) {
 		x_ = x;
@@ -290,10 +290,10 @@ float *  computeCorrectResults(wbArg_t args, int *correct_columnp, int *correct_
 	numCColumns = numBColumns;
 
     	hostC =(float *)  malloc (numCRows * numCColumns * sizeof(float) );
-	
+
 	for (int i=0; i < numCRows; i++ ) {
 		for (int j=0; j< numCColumns; j++ ) {
-			int sum =0; 
+			int sum =0;
 			for (int k=0; k<numAColumns; k++) {
 				sum += hostA[ numAColumns* i + k]  * hostB[numCColumns*k +j];
 			}
@@ -315,13 +315,13 @@ void wbSolution(wbArg_t args, float *hostC, int numCRows, int numCColumns) {
 	int correct_row;
 	float * correct_results;
 	correct_results = computeCorrectResults(args, &correct_column, &correct_row);
-	
+
 	if (numCColumns!= correct_column) {
 		printf("ERROR Wrong number of Columns, expect %d, actual %d\n", correct_column, numCColumns);
 		goto end;
 	}
 	if (numCRows!= correct_row) {
-		
+
 		printf("ERROR Wrong number of Rows, expect %d, actual %d\n", correct_row, numCRows);
 		goto end;
 	}
@@ -367,7 +367,7 @@ void wbSolution(wbArg_t args, float *hostC, int length ) {
 	int correct_column;
 	correct_results = computeCorrectResults(args, &correct_column);
 
-	
+
 	if (length != correct_column) {
 		printf("ERROR Wrong number of Columns, expect %d, actual %d\n", correct_column, length);
 		goto end;
@@ -389,7 +389,7 @@ end:
 
 void setLocalAndRun(CudaThreadLocal l_tls, boost::function <void ()> func) {
 	tls.reset(&l_tls);
-	func();	
+	func();
 }
 
 
@@ -406,7 +406,7 @@ void setupCudaSim (dim3 blocks, dim3 blocksize, boost::function <void ()  > func
 		for (int b_y=0; b_y< blocks.y_; b_y++) {
 
 			BatchTracker currentJob(&processor);
-			g_barrierp. reset ( new boost::barrier ( g_num_threads )) ; 
+			g_barrierp. reset ( new boost::barrier ( g_num_threads )) ;
 			for (int t_x=0; t_x< blocksize.x_; t_x++) {
 				for (int t_y=0; t_y< blocksize.y_; t_y++) {
 					CudaThreadLocal tl;
@@ -414,16 +414,14 @@ void setupCudaSim (dim3 blocks, dim3 blocksize, boost::function <void ()  > func
 					tl.block.y =b_y;
 					tl.thread.x =t_x;
 					tl.thread.y =t_y;
-					currentJob.post(boost::bind(setLocalAndRun,tl, func)); 
+					currentJob.post(boost::bind(setLocalAndRun,tl, func));
 				}
 			}
-			currentJob.wait_until_done(); 
+			currentJob.wait_until_done();
 		}
 	}
 
 	return ;
 }
 
-#endif 
-
-
+#endif

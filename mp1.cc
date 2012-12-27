@@ -36,20 +36,20 @@ int main(int argc, char ** argv) {
 
     wbTime_start(GPU, "Copying input memory to the GPU.");
     //@@ Copy memory to the GPU here
-    
+
     cudaMalloc((void **) &deviceInput1, byteSize);
     cudaMalloc((void **) &deviceInput2, byteSize);
 	cudaMalloc((void **) &deviceOutput, byteSize);
 
-  
+
     wbTime_stop(GPU, "Copying input memory to the GPU.");
-    
+
     //@@ Initialize the grid and block dimensions here
     cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice);
 
-    cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice);	
-    
-    
+    cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice);
+
+
     wbTime_start(Compute, "Performing CUDA computation");
     //@@ Launch the GPU Kernel here
      int block_size = 16;
@@ -60,14 +60,14 @@ int main(int argc, char ** argv) {
 
 #ifndef CUDA_EMU
     vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength);
-#else 
+#else
     setupCudaSim (dimGrid , dimBlock , boost::bind(vecAdd,deviceInput1,deviceInput2,deviceOutput, inputLength));
 #endif
 
-    
+
     cudaThreadSynchronize();
     wbTime_stop(Compute, "Performing CUDA computation");
-    
+
     wbTime_start(Copy, "Copying output memory to the CPU");
     //@@ Copy the GPU memory back to the CPU here
     cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost);
