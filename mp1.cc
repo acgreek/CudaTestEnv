@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
     hostOutput = (float *) malloc(inputLength * sizeof(float));
     wbTime_stop(Generic, "Importing data and creating memory on host");
 
-    wbLog(TRACE, "The input length is ", inputLength);
+    wbLog(TRACE, "The input length is ", inputLength, " elements");
 
 
     wbTime_start(GPU, "Allocating GPU memory.");

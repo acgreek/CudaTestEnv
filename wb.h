@@ -141,7 +141,6 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 		exit(-1);
 	}
 	int max_column = 0;
-	printf("reading file %s\n", filename);
 
 	char line[90000];
 	while (0 < fgets(line, sizeof(line) -1, f)) {
@@ -154,7 +153,6 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 		do {
 			
 			int num = atoi(c); 
-			printf ("%d ",num);
 			arrayp[(max_column * a_row) + a_column] = num;
 			a_column++;
 			if (a_column == r_column) {
@@ -174,7 +172,6 @@ void * wbImport(const char * filename, int *rowp, int *columnp)    {
 			arrayp = (float *) realloc(arrayp, sizeof(float) * r_row * r_column);
 		}
 	}
-	printf("done reading file %s\n", filename);
 			
 	fclose(f);
 	(*rowp)= a_row;
@@ -194,7 +191,6 @@ void * wbImport(const char * filename, int *array_sizep)    {
 		fprintf(stderr, "failed to open file: %s\n",filename);
 		exit(-1);
 	}
-	printf("reading file %s\n", filename);
 
 	char line[900000];
 	if (0 <fgets(line, sizeof(line) -1, f)) {
@@ -205,7 +201,6 @@ void * wbImport(const char * filename, int *array_sizep)    {
 		do {
 			
 			int num = atoi(c); 
-			printf ("%d ",num);
 			arrayp[a_column] = num;
 			a_column++;
 			if (a_column == r_column) {
@@ -217,7 +212,6 @@ void * wbImport(const char * filename, int *array_sizep)    {
 		} while (NULL != c);
 		
 	}
-	printf("done reading file %s\n", filename);
 			
 	fclose(f);
 	(*array_sizep) = a_column;
@@ -237,9 +231,14 @@ void wbTime_stop(...) {
 #define TRACE 1
 #define DEBUG 2
 
-void wbLog(int type, const char * str, ...) {
-	printf("type=%d: %s\n", type, str);
-}
+
+class wbLogger {
+	public:
+		template<typename T>
+			wbLogger &operator,(const T &t) { std::cout << t; return *this; }
+};
+#define wbLogN(LINE,type,args...) do { wbLogger wbLogger##LINE; wbLogger##LINE, ##args; } while(0)
+#define wbLog(type,args...) wbLogN(__LINE__,type,##args,"\n")
 
 typedef int cudaError_t;
 
