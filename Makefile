@@ -11,3 +11,5 @@ $(PROG): $(PROG).cc wb.h thread_processor.hpp
 run: $(PROG)
 	./$(PROG) foo foo
 
+clean:
+	rm -f *~ *.o core $(PROG)
