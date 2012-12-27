@@ -42,7 +42,7 @@ enum wbLogLevel
     wbLogLevelNum, // Keep this at the end
 };
 
-const char* _wbLogLevelStr[] =
+const char* const _wbLogLevelStr[] =
 {
     "Off",
     "Fatal",
@@ -152,14 +152,14 @@ wbArg_t wbArg_read(int argc, char** argv)
     return argInfo;
 }
 
-char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
+const char* wbArg_getInputFile(const wbArg_t &argInfo, int argNum)
 {
     assert(argNum >= 0 && argNum < (argInfo.argc - 1));
     return argInfo.argv[argNum + 1];
 }
 
 // For assignment MP1
-float* wbImport(char* fname, int* itemNum)
+float* wbImport(const char* fname, int* itemNum)
 {
     // Open file
 
@@ -190,7 +190,7 @@ float* wbImport(char* fname, int* itemNum)
 }
 
 // For assignment MP2
-float* wbImport(char* fname, int* numRows, int* numCols)
+float* wbImport(const char* fname, int* numRows, int* numCols)
 {
     // Open file
 
@@ -281,7 +281,7 @@ namespace CudaTimerNS
             return;
         }
 
-        double value()
+        double value() const
         {
             return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
         }
@@ -308,7 +308,7 @@ namespace CudaTimerNS
             _end = mach_absolute_time();
         }
 
-        double value()
+        double value() const
         {
             static mach_timebase_info_data_t tb;
 
@@ -331,9 +331,9 @@ namespace CudaTimerNS
         long long _start;
         long long _end;
 
-        long long getTime()
+        long long getTime() const
         {
-            long long time;
+            long long time = 0LL;
         #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
 
             struct timespec ts;
@@ -369,7 +369,7 @@ namespace CudaTimerNS
             _end = getTime();
         }
 
-        double value()
+        double value() const
         {
             return ((double) _end - (double) _start) / 1000000000LL;
         }
@@ -407,6 +407,11 @@ struct wbTimerInfo
     std::string            name;
     CudaTimerNS::CudaTimer timer;
 
+    wbTimerInfo(wbTimeType type, const std::string &name,
+        const CudaTimerNS::CudaTimer &timer = CudaTimerNS::CudaTimer()):
+        type(type), name(name), timer(timer)
+    {
+    }
     bool operator == (const wbTimerInfo& t2) const
     {
         return (type == t2.type && (0 == name.compare(t2.name)));
@@ -416,23 +421,23 @@ struct wbTimerInfo
 typedef std::list< wbTimerInfo> wbTimerInfoList;
 wbTimerInfoList gTimerInfoList;
 
-void wbTime_start(wbTimeType timeType, const std::string timeStar)
+void wbTime_start(wbTimeType timeType, const std::string &timeStar)
 {
     CudaTimerNS::CudaTimer timer;
     timer.start();
 
-    wbTimerInfo tInfo = { timeType, timeStar, timer };
+    wbTimerInfo tInfo(timeType, timeStar, timer);
 
     gTimerInfoList.push_front(tInfo);
 
     return;
 }
 
-void wbTime_stop(wbTimeType timeType, const std::string timeStar)
+void wbTime_stop(wbTimeType timeType, const std::string &timeStar)
 {
     // Find timer
 
-    const wbTimerInfo searchInfo         = { timeType, timeStar };
+    const wbTimerInfo searchInfo(timeType, timeStar);
     const wbTimerInfoList::iterator iter = std::find( gTimerInfoList.begin(), gTimerInfoList.end(), searchInfo );
 
     // Stop timer and print time
@@ -476,7 +481,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 
     for (item = 0; item < solnItems; item++)
     {
-        if (abs(soln[item] - t[item]) > .005)
+        if (abs(soln[item] - t[item]) > .005f)
         {
             std::cout << "Solution does not match at item " << item << ". ";
             std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
@@ -518,7 +523,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
             float expected = *(soln + row * solnColumns + col);
             float got = *(t + row * solnColumns + col);
 
-            if (abs(expected - got) > 0.005)
+            if (abs(expected - got) > 0.005f)
             {
                 std::cout << "Solution does not match at (" << row << ", " << col << "). ";
                 std::cout << "Expecting " << expected << " but got " << got << ".\n";
