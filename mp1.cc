@@ -52,7 +52,7 @@ int main(int argc, char ** argv) {
     
     wbTime_start(Compute, "Performing CUDA computation");
     //@@ Launch the GPU Kernel here
-     int block_size = 1024;
+     int block_size = 16;
      int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);
 
     dim3 dimGrid(n_blocks,1, 1) ;

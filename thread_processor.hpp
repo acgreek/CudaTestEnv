@@ -10,8 +10,13 @@ class ThreadProcessor {
 		ThreadProcessor(int max_wait_for_job_sec = 200, int number_of_worker_threads= 0) :io_mutex_(), cond_(), initialized_(false), actors_(), number_messages_(0), done_(false), message_list_(), max_wait_for_job_sec_(max_wait_for_job_sec),number_of_worker_threads_(number_of_worker_threads) { 
 			start_workers();
 		}
-		~ThreadProcessor() {
+		void set_done() {
+			boost::mutex::scoped_lock lock(io_mutex_);
 			done_ = true;
+		}
+
+		~ThreadProcessor() {
+			set_done();
 			cond_.notify_all();
 			//actors_.interrupt_all();
 			actors_.join_all();

@@ -1,8 +1,8 @@
 CFLAGS=-g -Wall -I. -std=c99 -DCUDA_EMU
 CXXFLAGS=-g -Wall -I. -DCUDA_EMU -pie 
-LDFLAGS=-Wl,--enable-auto-import,--rpath,/usr/lib/ -lboost_thread-mt -lboost_system-mt
+LDFLAGS=-lboost_thread-mt -lboost_system-mt
 
-mp1: mp1.cc wb.h
+mp1: mp1.cc wb.h thread_processor.hpp
 	g++ $(CXXFLAGS)  mp1.cc -o mp1 $(LDFLAGS)
 
 
