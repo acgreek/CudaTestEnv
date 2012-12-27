@@ -16,10 +16,8 @@
 *.out
 *.app
 
-<<<<<<< HEAD
 vec*.txt
+mat*.txt
 
-=======
 # Garbage
 *~
->>>>>>> ba924b9847b0041779b7d4173627345d99ae5066
