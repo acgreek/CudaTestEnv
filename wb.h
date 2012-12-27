@@ -14,6 +14,8 @@
 #include <boost/shared_ptr.hpp>
 #include "thread_processor.hpp"
 
+#include <fstream>
+
 using namespace std;
 
 #define __global__
@@ -128,97 +130,61 @@ char *wbArg_getInputFile(int v __attribute__((unused)) , int index) {
 	return filen[index];
 }
 
-//* read the file int to 2 dimensional array
-void * wbImport(const char * filename, int *rowp, int *columnp)    {
 
-	int r_row=10;
-	int r_column=10;
-	int a_row = 0;
-	int a_column = 0;;
-
-	float *arrayp = (float *) malloc(sizeof(float) * r_row * r_column);
-
-	FILE * f =fopen (filename, "r");
-	if (NULL == f) {
-		fprintf(stderr, "failed to open file: %s\n",filename);
+// Stupid error treatment, to be substituted with something more elegant.
+void die_if(bool cond, const char *msg1, const char *msg2)
+{
+	if (cond) {
+		cerr << msg1 << msg2 << endl;
 		exit(-1);
 	}
-	int max_column = 0;
+}
 
-	char line[90000];
-	while (0 < fgets(line, sizeof(line) -1, f)) {
-		a_column = 0 ;
-		if (strlen(line) == 0)
-			continue;
-		char * c;
-		c = strtok(line, " ");
+//* read the file into 2 dimensional array
+void *wbImport(const char *filename, int *rowp, int *columnp)
+{
+	int rows, cols;
 
-		do {
+	fstream f(filename);
+	die_if(!f, "Error opening file: ", filename);
 
-			int num = atoi(c);
-			arrayp[(max_column * a_row) + a_column] = num;
-			a_column++;
-			if (a_column == r_column) {
-				r_column *=2;
-				arrayp = (float *) realloc(arrayp, sizeof(float) * r_row * r_column);
-			}
-			c = strtok(NULL, " ");
+	f >> rows >> cols;
 
-		} while (NULL != c);
+	float *array = (float *) malloc(rows * cols * sizeof(float));
+	die_if(!array, "Error allocating memory for array.", "");
 
-		a_row++;
-		max_column = a_column;
-		printf ("\n");
-
-		if (a_row == r_row) {
-			r_row *=2;
-			arrayp = (float *) realloc(arrayp, sizeof(float) * r_row * r_column);
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			f >> array[i * cols + j];	// equivalent to array[i][j]
 		}
 	}
+	f.close();
 
-	fclose(f);
-	(*rowp)= a_row;
-	(*columnp) = a_column;
-	return arrayp;
+	*rowp = rows;
+	*columnp = cols;
+	return array;
 }
+
 //* read the file int to one dimensional array
-void * wbImport(const char * filename, int *array_sizep)    {
+void *wbImport(const char *filename, int *array_sizep)
+{
+	int items;
 
-	int r_column=10;
-	int a_column = 0;;
+	fstream f(filename);
+	die_if(!f, "Error opening file: ", filename);
 
-	float *arrayp = (float *) malloc(sizeof(float) * r_column);
+	f >> items;
 
-	FILE * f =fopen (filename, "r");
-	if (NULL == f) {
-		fprintf(stderr, "failed to open file: %s\n",filename);
-		exit(-1);
+	float *array = (float *) malloc(sizeof(float) * items);
+	die_if(!array, "Error allocating memory for array.", "");
+
+	for (int i = 0; i < items; i++) {
+		f >> array[i];
 	}
+	f.close();
 
-	char line[900000];
-	if (0 <fgets(line, sizeof(line) -1, f)) {
-		a_column = 0 ;
-		char * c;
-		c = strtok(line, " ");
-
-		do {
-
-			int num = atoi(c);
-			arrayp[a_column] = num;
-			a_column++;
-			if (a_column == r_column) {
-				r_column *=2;
-				arrayp = (float *) realloc(arrayp, sizeof(float) * r_column);
-			}
-			c = strtok(NULL, " ");
-
-		} while (NULL != c);
-
-	}
-
-	fclose(f);
-	(*array_sizep) = a_column;
-	return arrayp;
+	*array_sizep = items;
+	return array;
 }
 #define Generic 1
 #define GPU 1
