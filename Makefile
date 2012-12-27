@@ -1,6 +1,6 @@
 PROG = mp1
 
-HEADERS = include/wb.h include/thread_processor.hpp
+HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SOURCES = $(PROG).cc $(HEADERS)
 
 CFLAGS = -g -Os -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
