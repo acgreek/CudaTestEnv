@@ -9,6 +9,8 @@
 #include <boost/shared_ptr.hpp>
 #include "thread_processor.hpp"
 
+#define UNUSED __attribute__((unused))
+
 typedef int cudaError_t;
 
 
@@ -19,7 +21,7 @@ cudaError_t cudaMalloc(void ** ptr, int size) {
 }
 #define cudaMemcpyHostToDevice 0
 #define cudaMemcpyDeviceToHost 1
-cudaError_t cudaMemcpy(void * dest, void * src, int size, int type __attribute__((unused))){
+cudaError_t cudaMemcpy(void * dest, void * src, int size, int type UNUSED){
 	memcpy(dest,src,size);
 	return cudaSuccess;
 }
@@ -64,7 +66,7 @@ struct CudaThreadLocal {
 	CudaThreadLocal() : phase1(0),phase2(0)  {}
 };
 
-static void doNothing(CudaThreadLocal * ptr) {
+static void doNothing(CudaThreadLocal * ptr UNUSED) {
 }
 
 boost::thread_specific_ptr<CudaThreadLocal> tls (doNothing);
