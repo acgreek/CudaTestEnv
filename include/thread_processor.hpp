@@ -4,6 +4,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/utility.hpp>
 
 class ThreadProcessor {
 public:
@@ -104,13 +105,13 @@ public:
  * Use this to post a series of jobs to run in parallel and then wait for
  * them to complete in the scheduling thread
  */
-class BatchTracker
+class BatchTracker : boost::noncopyable
 {
 public:
 	BatchTracker(ThreadProcessor *threadProcessorp):
 		number_of_jobs_total(0), number_of_jobs_complete(0),
 		cond_(), mutex(), threadProcessorp_(threadProcessorp) { }
-	~BatchTracker() { };
+	virtual ~BatchTracker() { };
 
 	/**
 	 * post a function to run in parallel

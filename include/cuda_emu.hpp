@@ -37,10 +37,7 @@ typedef struct _dim3 {
 	int x_;
 	int y_; 
 	int z_;
-	_dim3(int  x, int y, int z) {
-		x_ = x;
-		y_= y;
-		z_= z;
+	_dim3(int  x, int y, int z) :  x_(x),y_(y),z_(z) {
 	}
 } dim3;
 
@@ -56,6 +53,9 @@ typedef struct _Block_t  {
 	int x;
 	int y;
 	int z;
+	_Block_t () : x(0), y(0), z(0) {
+	}
+
 } Block_t;
 
 struct CudaThreadLocal {
@@ -63,7 +63,7 @@ struct CudaThreadLocal {
 	Block_t thread;
 	int phase1;
 	int phase2;
-	CudaThreadLocal() : phase1(0),phase2(0)  {}
+	CudaThreadLocal() : block(), thread(), phase1(0),phase2(0)  {}
 };
 
 static void doNothing(CudaThreadLocal * ptr UNUSED) {
