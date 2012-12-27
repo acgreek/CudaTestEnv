@@ -1,7 +1,7 @@
 PROG = mp1
 
-CFLAGS=-g -Wall -I. -std=c99 -DCUDA_EMU
-CXXFLAGS=-g -Wall -I. -DCUDA_EMU -pie
+CFLAGS=-g -Os -Wall -I. -std=c99 -DCUDA_EMU
+CXXFLAGS=-g -Os -Wall -I. -DCUDA_EMU -pie
 LDFLAGS=-lboost_thread-mt
 
 $(PROG): $(PROG).cc wb.h thread_processor.hpp
