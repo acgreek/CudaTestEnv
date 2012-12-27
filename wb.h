@@ -86,7 +86,6 @@ void __syncthreads()
 	Block_t bl = getThreadIdx();
 	CudaThreadLocal *p = tls.get();
 
-//	printf("thread %d %d is waiting on barrier 1\n", bl.x, bl.y);
 	g_barrierp->wait();
 	{
 		boost::mutex::scoped_lock lock(g_b_mutex1);
@@ -98,7 +97,6 @@ void __syncthreads()
 		p->phase1 = b_phase1;
 
 	}
-//	printf("thread %d %d is done waiting on barrier 1\n", bl.x, bl.y);
 	g_barrier_2p->wait();
 	{
 		boost::mutex::scoped_lock lock(g_b_mutex2);
@@ -108,7 +106,6 @@ void __syncthreads()
 			b_phase2++;
 		}
 		p->phase2 = b_phase2;
-
 	}
 }
 
