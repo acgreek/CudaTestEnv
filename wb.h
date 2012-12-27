@@ -1,10 +1,11 @@
 #ifndef WB_H
 #define WB_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
@@ -12,6 +13,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include "thread_processor.hpp"
+
+using namespace std;
 
 #define __global__
 #define __shared__ volatile static
