@@ -20,10 +20,10 @@ run: $(PROG)
 clean:
 	rm -f *~ *.o core $(PROGS) *.exe
 
-vecC.txt: GenDataMp1
-	./GenDataMp1 90
+vecC.txt: GenDataMP1
+	./GenDataMP1 90
 
-matC.txt: GenDataMp2
+matC.txt: GenDataMP2
 
 run1: mp1 vecC.txt
 	./mp1  vecA.txt vecB.txt vecC.txt
