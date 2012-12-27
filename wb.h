@@ -40,7 +40,7 @@ struct CudaThreadLocal {
 	CudaThreadLocal() : phase1(0),phase2(0)  {}
 };
 
-static void doNothing(CudaThreadLocal * ptr) {
+static void doNothing(CudaThreadLocal * ptr __attribute__((unused))) {
 }
 
 boost::thread_specific_ptr<CudaThreadLocal> tls (doNothing);
