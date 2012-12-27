@@ -415,8 +415,6 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()> func)
 			currentJob.wait_until_done();
 		}
 	}
-
-	return;
 }
 
 #endif
