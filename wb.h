@@ -262,7 +262,7 @@ float *  computeCorrectResults(wbArg_t args, int *correct_columnp, int *correct_
 
 	for (int i=0; i < numCRows; i++ ) {
 		for (int j=0; j< numCColumns; j++ ) {
-			int sum =0;
+			float sum =0;
 			for (int k=0; k<numAColumns; k++) {
 				sum += hostA[ numAColumns* i + k]  * hostB[numCColumns*k +j];
 			}
