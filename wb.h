@@ -110,26 +110,6 @@ typedef int wbArg_t;
 
 char * filen[2];
 
-int wbArg_read(int argc, char * argv[]) {
-	if (argc< 2) {
-		fprintf(stderr, "wrong number of args, requires 2\n");
-		exit(-1);
-	}
-	filen[0] = argv[1];
-	filen[1] = argv[2];
-
-	return 0;
-}
-
-
-char *wbArg_getInputFile(int v __attribute__((unused)) , int index) {
-	if (index > 1) {
-		fprintf(stderr, "wrong index used, should be 1 or 2\n");
-		exit(-1);
-	}
-	return filen[index];
-}
-
 
 // Stupid error treatment, to be substituted with something more elegant.
 void die_if(bool cond, const char *msg1, const char *msg2)
@@ -138,6 +118,22 @@ void die_if(bool cond, const char *msg1, const char *msg2)
 		cerr << msg1 << msg2 << endl;
 		exit(-1);
 	}
+}
+
+int wbArg_read(int argc, char * argv[]) {
+	die_if(argc < 2, "Wrong number of args, requires 2.", "");
+
+	filen[0] = argv[1];
+	filen[1] = argv[2];
+
+	return 0;
+}
+
+
+char *wbArg_getInputFile(int v __attribute__((unused)), int index) {
+	die_if(index > 1, "Wrong index used, should be 0 or 1.", "");
+
+	return filen[index];
 }
 
 //* read the file into 2 dimensional array
