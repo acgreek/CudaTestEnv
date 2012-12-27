@@ -1,6 +1,4 @@
-PROG1= mp1
-PROG2= mp2
-PROG3= mp3
+PROGS= mp1 mp2 mp3
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp) Makefile
 SOURCES1 = $(PROG1).cc $(HEADERS)
 SOURCES2 = $(PROG2).cc $(HEADERS)
@@ -13,23 +11,19 @@ LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt
 
 all: mp1 GenDataMP1 GenDataMP2 
 
-$(PROG1): $(SOURCES1)
-	$(CXX) $(CXXFLAGS) $@.cc -o $@ $(LDFLAGS)
-$(PROG2): $(SOURCES2)
-	$(CXX) $(CXXFLAGS) $@.cc -o $@ $(LDFLAGS)
-$(PROG3): $(SOURCES3)
+%: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) $@.cc -o $@ $(LDFLAGS)
 
 run: $(PROG)
 	./$(PROG) foo foo
 
 clean:
-	rm -f *~ *.o core $(PROG1) $(PROG2) $(PROG3) *.exe
+	rm -f *~ *.o core $(PROGS) *.exe
 
-vecC.txt: GenDataMp1
-	./GenDataMp1 90
+vecC.txt: GenDataMP1
+	./GenDataMP1 90
 
-matC.txt: GenDataMp2
+matC.txt: GenDataMP2
 
 run1: mp1 vecC.txt
 	./mp1  vecA.txt vecB.txt vecC.txt
@@ -39,4 +33,4 @@ run3: mp3 matC.txt
 	./mp3 matA.txt matB.txt matC.txt
 
 
-run:run1 run2 run3
+run: $(PROGS)
