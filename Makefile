@@ -5,7 +5,7 @@ CXXFLAGS=-g -Os -Wall -I. -DCUDA_EMU -pie
 LDFLAGS=-lboost_thread-mt
 
 $(PROG): $(PROG).cc wb.h thread_processor.hpp
-	g++ $(CXXFLAGS) $(PROG).cc -o $(PROG) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(PROG).cc -o $(PROG) $(LDFLAGS)
 
 
 run: $(PROG)
