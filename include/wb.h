@@ -57,82 +57,24 @@ const char* const _wbLogLevelStr[] =
 const char* _wbLogLevelToStr(wbLogLevel level)
 {
     assert(level >= OFF && level <= TRACE);
-    return _wbLogLevelStr[level];
+    if (level >= OFF && level <= TRACE)
+        return _wbLogLevelStr[level];
+    return _wbLogLevelStr[wbLogLevelNum];
 }
 
-//-----------------------------------------------------------------------------
-// Begin: Ugly C++03 hack
-// NVCC does not support C++11 variadic template yet
-
-template<typename T1>
-inline void _wbLog(T1 const& p1)
-{
-    std::cout << p1;
-}
-
-template<typename T1, typename T2>
-inline void _wbLog(T1 const& p1, T2 const& p2)
-{
-    std::cout << p1 << p2;
-}
-
-template<typename T1, typename T2, typename T3>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
-{
-    std::cout << p1 << p2 << p3;
-}
-
-template<typename T1, typename T2, typename T3, typename T4>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
-{
-    std::cout << p1 << p2 << p3 << p4;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9;
-}
-
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
-}
-
-// End: Ugly C++03 hack
-//-----------------------------------------------------------------------------
+class wbLogger {
+    public:
+        template<typename T>
+        wbLogger &operator,(const T &t) { std::cout << t; return *this; }
+};
 
 #define wbLog(level, ...)                                     \
     do                                                        \
     {                                                         \
         std::cout << _wbLogLevelToStr(level) << " ";          \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " "; \
-        _wbLog(__VA_ARGS__);                                  \
+        wbLogger logger;                                      \
+        logger, __VA_ARGS__;                                  \
         std::cout << std::endl;                               \
     } while (0)
 
@@ -154,14 +96,21 @@ wbArg_t wbArg_read(int argc, char** argv)
 
 const char* wbArg_getInputFile(const wbArg_t &argInfo, int argNum)
 {
-    assert(argNum >= 0 && argNum < (argInfo.argc - 1));
-    return argInfo.argv[argNum + 1];
+    if (argNum >= 0 && argNum < (argInfo.argc - 1))
+        return argInfo.argv[argNum + 1];
+    return NULL;
 }
 
 // For assignment MP1
 float* wbImport(const char* fname, int* itemNum)
 {
     // Open file
+
+    if (!fname)
+    {
+        std::cout << "No input file given\n";
+        exit(1);
+    }
 
     std::ifstream inFile(fname);
 
@@ -193,6 +142,12 @@ float* wbImport(const char* fname, int* itemNum)
 float* wbImport(const char* fname, int* numRows, int* numCols)
 {
     // Open file
+
+    if (!fname)
+    {
+        std::cout << "No input file given\n";
+        exit(1);
+    }
 
     std::ifstream inFile(fname);
 
@@ -386,7 +341,7 @@ enum wbTimeType
     wbTimeTypeNum, // Keep this at the end
 };
 
-const char* wbTimeTypeStr[] =
+const char* const wbTimeTypeStr[] =
 {
     "Generic",
     "GPU    ",
@@ -398,7 +353,9 @@ const char* wbTimeTypeStr[] =
 const char* wbTimeTypeToStr(wbTimeType t)
 {
     assert(t >= Generic && t < wbTimeTypeNum);
-    return wbTimeTypeStr[t];
+    if (t >= Generic && t < wbTimeTypeNum)
+        return wbTimeTypeStr[t];
+    return wbTimeTypeStr[wbTimeTypeNum];
 }
 
 struct wbTimerInfo
@@ -471,6 +428,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
     {
         std::cout << "Number of items in solution does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
+        free(soln);
         return;
     }
     
@@ -488,6 +446,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
             errCnt++;
         }
     }
+
+    free(soln);
 
     if (!errCnt)
         std::cout << "All tests passed!\n";
@@ -508,6 +468,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
     {
         std::cout << "Size of solution does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
+        free(soln);
         return;
     }
     
@@ -531,6 +492,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
             }
         }
     }
+
+    free(soln);
 
     if (!errCnt)
         std::cout << "All tests passed!\n";
