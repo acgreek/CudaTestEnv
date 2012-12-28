@@ -98,14 +98,12 @@ Block_t getBlockDim() {
 
 static int g_num_threads; 
 
-boost::shared_ptr<boost::barrier> g_barrierp;
-boost::shared_ptr<boost::barrier> g_barrier_2p;
-boost::mutex g_b_mutex1;
-boost::mutex g_b_mutex2;
-bool has_t1_set_mutex=true;
-int b_phase1=0;
-int b_phase2=0;
-
+static boost::shared_ptr<boost::barrier> g_barrierp;
+static boost::shared_ptr<boost::barrier> g_barrier_2p; 
+static boost::mutex g_b_mutex1;
+static boost::mutex g_b_mutex2;
+static volatile int b_phase1=0;
+static volatile int b_phase2=0;
 
 
 /**
