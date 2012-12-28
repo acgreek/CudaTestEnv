@@ -1,10 +1,11 @@
 PROGS= mp1 mp2 mp3
+LD=g++
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SHARED_DEPS = $(HEADERS) Makefile
 
 CFLAGS = -g -Os -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
 CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU 
-LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt
+LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt -stdc++
 
 
 all: mp1 GenDataMP1 GenDataMP2 
@@ -13,7 +14,7 @@ all: mp1 GenDataMP1 GenDataMP2
 .PRECIOUS: %.o
 
 %: %.o
-	$(CC) $< -o $@ $(LDFLAGS)
+	$(LD) $< -o $@ $(LDFLAGS)
 
 %.o: %.c $(SHARED_DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
