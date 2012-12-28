@@ -341,7 +341,7 @@ enum wbTimeType
     wbTimeTypeNum, // Keep this at the end
 };
 
-const char* wbTimeTypeStr[] =
+const char* const wbTimeTypeStr[] =
 {
     "Generic",
     "GPU    ",
