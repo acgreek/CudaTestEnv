@@ -124,7 +124,7 @@ void __syncthreads() {
 		boost::mutex::scoped_lock lock( g_b_mutex1);
 		if (b_phase1 == p->phase1) {
 			g_barrier_2p.reset ( new boost::barrier ( g_num_threads )) ; 
-			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
+//			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
 			b_phase1++;
 		}
 		p->phase1 = b_phase1 ;
@@ -136,7 +136,7 @@ void __syncthreads() {
 		boost::mutex::scoped_lock lock( g_b_mutex2);
 		if (b_phase2 == p->phase2) {
 			g_barrierp.reset ( new boost::barrier ( g_num_threads )) ; 
-			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
+//			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
 			b_phase2++;
 		}
 		p->phase2 = b_phase2 ;
