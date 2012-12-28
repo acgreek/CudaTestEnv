@@ -41,13 +41,6 @@ cudaError_t cudaFree(void * ptr) {
 void cudaThreadSynchronize() {
 }
 
-typedef struct _dim3 {
-	int x_;
-	int y_; 
-	int z_;
-	_dim3(int  x, int y, int z) :  x_(x),y_(y),z_(z) {
-	}
-} dim3;
 
 #define __global__
 #define __shared__ volatile static
@@ -63,8 +56,12 @@ typedef struct _Block_t  {
 	int z;
 	_Block_t () : x(0), y(0), z(0) {
 	}
+	_Block_t (int  lx, int ly, int lz) :  x(lx),y(ly),z(lz) {
+	}
 
 } Block_t;
+
+typedef Block_t dim3;
 
 struct CudaThreadLocal {
 	Block_t block;
@@ -147,21 +144,21 @@ void setLocalAndRun(CudaThreadLocal l_tls, boost::function <void ()> func) {
 
 
 void setupCudaSim (dim3 blocks, dim3 blocksize, boost::function <void ()  > func) {
-	int numThreads = blocksize.x_ * blocksize.y_;
+	int numThreads = blocksize.x * blocksize.y;
 	ThreadProcessor processor( numThreads *2, numThreads);
 	g_num_threads = numThreads ;
 
-	g_blockDim.x = blocksize.x_;
-	g_blockDim.y = blocksize.y_;
-	g_blockDim.z = blocksize.z_;
-	for (int b_x=0; b_x< blocks.x_; b_x++) {
+	g_blockDim.x = blocksize.x;
+	g_blockDim.y = blocksize.y;
+	g_blockDim.z = blocksize.z;
+	for (int b_x=0; b_x< blocks.x; b_x++) {
 
-		for (int b_y=0; b_y< blocks.y_; b_y++) {
+		for (int b_y=0; b_y< blocks.y; b_y++) {
 
 			BatchTracker currentJob(&processor);
 			g_barrierp. reset ( new boost::barrier ( g_num_threads )) ; 
-			for (int t_x=0; t_x< blocksize.x_; t_x++) {
-				for (int t_y=0; t_y< blocksize.y_; t_y++) {
+			for (int t_x=0; t_x< blocksize.x; t_x++) {
+				for (int t_y=0; t_y< blocksize.y; t_y++) {
 					CudaThreadLocal tl;
 					tl.block.x =b_x;
 					tl.block.y =b_y;
