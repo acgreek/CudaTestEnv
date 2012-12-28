@@ -41,13 +41,6 @@ cudaError_t cudaFree(void * ptr) {
 void cudaThreadSynchronize() {
 }
 
-typedef struct _dim3 {
-	int x_;
-	int y_; 
-	int z_;
-	_dim3(int  x, int y, int z) :  x_(x),y_(y),z_(z) {
-	}
-} dim3;
 
 #define __global__
 #define __shared__ volatile static
@@ -63,8 +56,12 @@ typedef struct _Block_t  {
 	int z;
 	_Block_t () : x(0), y(0), z(0) {
 	}
+	_Block_t (int  lx, int ly, int lz) :  x(lx),y(ly),z(lz) {
+	}
 
 } Block_t;
+
+typedef Block_t dim3;
 
 struct CudaThreadLocal {
 	Block_t block;
@@ -77,6 +74,7 @@ struct CudaThreadLocal {
 static void doNothing(CudaThreadLocal * ptr UNUSED) {
 }
 
+// we don't want the thread local to call delete on the object stored in this because it is allocated off of the stack
 boost::thread_specific_ptr<CudaThreadLocal> tls (doNothing);
 
 Block_t getBlockIdx() {
@@ -100,15 +98,22 @@ Block_t getBlockDim() {
 
 static int g_num_threads; 
 
-boost::shared_ptr<boost::barrier> g_barrierp;
-boost::shared_ptr<boost::barrier> g_barrier_2p;
-boost::mutex g_b_mutex1;
-boost::mutex g_b_mutex2;
-bool has_t1_set_mutex=true;
-int b_phase1=0;
-int b_phase2=0;
+static boost::shared_ptr<boost::barrier> g_barrierp;
+static boost::shared_ptr<boost::barrier> g_barrier_2p; 
+static boost::mutex g_b_mutex1;
+static boost::mutex g_b_mutex2;
+static volatile int b_phase1=0;
+static volatile int b_phase2=0;
 
 
+/**
+ * I'm sure there are better ways to do this. 
+ * the problem here is that the boost::barrier can not be destroyed while there are there are threads that have not yet exited out of the boost:barrier wait function (it core dumps) . 
+ * It would be great if the barrier object had a reset function that when called would reset the wait barrier wait count, all current threads waiting on it would be allowed to exit the function safely, and new calls to wait would decrement from wait on the new counter.
+ *
+ *
+ * anyway, this seems to work 
+ */
 void __syncthreads() {
 	Block_t bl = getThreadIdx() ;
 	CudaThreadLocal  *p = tls.get();
@@ -119,7 +124,7 @@ void __syncthreads() {
 		boost::mutex::scoped_lock lock( g_b_mutex1);
 		if (b_phase1 == p->phase1) {
 			g_barrier_2p.reset ( new boost::barrier ( g_num_threads )) ; 
-			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
+//			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
 			b_phase1++;
 		}
 		p->phase1 = b_phase1 ;
@@ -131,7 +136,7 @@ void __syncthreads() {
 		boost::mutex::scoped_lock lock( g_b_mutex2);
 		if (b_phase2 == p->phase2) {
 			g_barrierp.reset ( new boost::barrier ( g_num_threads )) ; 
-			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
+//			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
 			b_phase2++;
 		}
 		p->phase2 = b_phase2 ;
@@ -147,21 +152,21 @@ void setLocalAndRun(CudaThreadLocal l_tls, boost::function <void ()> func) {
 
 
 void setupCudaSim (dim3 blocks, dim3 blocksize, boost::function <void ()  > func) {
-	int numThreads = blocksize.x_ * blocksize.y_;
+	int numThreads = blocksize.x * blocksize.y;
 	ThreadProcessor processor( numThreads *2, numThreads);
 	g_num_threads = numThreads ;
 
-	g_blockDim.x = blocksize.x_;
-	g_blockDim.y = blocksize.y_;
-	g_blockDim.z = blocksize.z_;
-	for (int b_x=0; b_x< blocks.x_; b_x++) {
+	g_blockDim.x = blocksize.x;
+	g_blockDim.y = blocksize.y;
+	g_blockDim.z = blocksize.z;
+	for (int b_x=0; b_x< blocks.x; b_x++) {
 
-		for (int b_y=0; b_y< blocks.y_; b_y++) {
+		for (int b_y=0; b_y< blocks.y; b_y++) {
 
 			BatchTracker currentJob(&processor);
 			g_barrierp. reset ( new boost::barrier ( g_num_threads )) ; 
-			for (int t_x=0; t_x< blocksize.x_; t_x++) {
-				for (int t_y=0; t_y< blocksize.y_; t_y++) {
+			for (int t_x=0; t_x< blocksize.x; t_x++) {
+				for (int t_y=0; t_y< blocksize.y; t_y++) {
 					CudaThreadLocal tl;
 					tl.block.x =b_x;
 					tl.block.y =b_y;
