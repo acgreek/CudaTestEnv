@@ -1,8 +1,6 @@
 PROGS= mp1 mp2 mp3
-HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp) Makefile
-SOURCES1 = $(PROG1).cc $(HEADERS)
-SOURCES2 = $(PROG2).cc $(HEADERS)
-SOURCES3 = $(PROG3).cc $(HEADERS)
+HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
+SHARED_DEPS = $(HEADERS) Makefile
 
 CFLAGS = -g -Os -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
 CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU 
@@ -11,11 +9,17 @@ LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt
 
 all: mp1 GenDataMP1 GenDataMP2 
 
-%: %.cc $(HEADERS)
-	$(CXX) $(CXXFLAGS) $@.cc -o $@ $(LDFLAGS)
+.SUFFIXES:
+.PRECIOUS: %.o
 
-run: $(PROG)
-	./$(PROG) foo foo
+%: %.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+%.o: %.c $(SHARED_DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%.o: %.cc $(SHARED_DEPS)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *~ *.o core $(PROGS) *.exe
@@ -32,5 +36,5 @@ run2: mp2 matC.txt
 run3: mp3 matC.txt
 	./mp3 matA.txt matB.txt matC.txt
 
+run: run1 run2 run2
 
-run: $(PROGS)
