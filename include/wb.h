@@ -428,6 +428,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
     {
         std::cout << "Number of items in solution does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
+        free(soln);
         return;
     }
     
@@ -445,6 +446,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
             errCnt++;
         }
     }
+
+    free(soln);
 
     if (!errCnt)
         std::cout << "All tests passed!\n";
@@ -465,6 +468,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
     {
         std::cout << "Size of solution does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
+        free(soln);
         return;
     }
     
@@ -488,6 +492,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
             }
         }
     }
+
+    free(soln);
 
     if (!errCnt)
         std::cout << "All tests passed!\n";
