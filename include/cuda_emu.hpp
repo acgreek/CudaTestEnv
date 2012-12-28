@@ -74,6 +74,7 @@ struct CudaThreadLocal {
 static void doNothing(CudaThreadLocal * ptr UNUSED) {
 }
 
+// we don't want the thread local to call delete on the object stored in this because it is allocated off of the stack
 boost::thread_specific_ptr<CudaThreadLocal> tls (doNothing);
 
 Block_t getBlockIdx() {
@@ -106,6 +107,15 @@ int b_phase1=0;
 int b_phase2=0;
 
 
+
+/**
+ * I'm sure there are better ways to do this. 
+ * the problem here is that the boost::barrier can not be destroyed while there are there are threads that have not yet exited out of the boost:barrier wait function (it core dumps) . 
+ * It would be great if the barrier object had a reset function that when called would reset the wait barrier wait count, all current threads waiting on it would be allowed to exit the function safely, and new calls to wait would decrement from wait on the new counter.
+ *
+ *
+ * anyway, this seems to work 
+ */
 void __syncthreads() {
 	Block_t bl = getThreadIdx() ;
 	CudaThreadLocal  *p = tls.get();
