@@ -94,14 +94,21 @@ wbArg_t wbArg_read(int argc, char** argv)
 
 const char* wbArg_getInputFile(const wbArg_t &argInfo, int argNum)
 {
-    assert(argNum >= 0 && argNum < (argInfo.argc - 1));
-    return argInfo.argv[argNum + 1];
+    if (argNum >= 0 && argNum < (argInfo.argc - 1))
+        return argInfo.argv[argNum + 1];
+    return NULL;
 }
 
 // For assignment MP1
 float* wbImport(const char* fname, int* itemNum)
 {
     // Open file
+
+    if (!fname)
+    {
+        std::cout << "No input file given\n";
+        exit(1);
+    }
 
     std::ifstream inFile(fname);
 
@@ -133,6 +140,12 @@ float* wbImport(const char* fname, int* itemNum)
 float* wbImport(const char* fname, int* numRows, int* numCols)
 {
     // Open file
+
+    if (!fname)
+    {
+        std::cout << "No input file given\n";
+        exit(1);
+    }
 
     std::ifstream inFile(fname);
 
