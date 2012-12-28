@@ -57,7 +57,9 @@ const char* const _wbLogLevelStr[] =
 const char* _wbLogLevelToStr(wbLogLevel level)
 {
     assert(level >= OFF && level <= TRACE);
-    return _wbLogLevelStr[level];
+    if (level >= OFF && level <= TRACE)
+        return _wbLogLevelStr[level];
+    return _wbLogLevelStr[wbLogLevelNum];
 }
 
 class wbLogger {
@@ -351,7 +353,9 @@ const char* wbTimeTypeStr[] =
 const char* wbTimeTypeToStr(wbTimeType t)
 {
     assert(t >= Generic && t < wbTimeTypeNum);
-    return wbTimeTypeStr[t];
+    if (t >= Generic && t < wbTimeTypeNum)
+        return wbTimeTypeStr[t];
+    return wbTimeTypeStr[wbTimeTypeNum];
 }
 
 struct wbTimerInfo
