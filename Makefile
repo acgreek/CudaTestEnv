@@ -39,3 +39,12 @@ run3: mp3 matC.txt
 
 run: run1 run2 run2
 
+# Unfortunately, Debian's astyle 2.01 doesn't support --align-reference=name
+# This should be included when version 2.02 is used.
+reformat:
+	astyle \
+		--style=stroustrup --align-pointer=name --indent-preprocessor \
+		--pad-oper --pad-header --unpad-paren --indent=tab=8 \
+		--min-conditional-indent=0 --max-instatement-indent=79 \
+		--suffix=none \
+		include/*.hpp
