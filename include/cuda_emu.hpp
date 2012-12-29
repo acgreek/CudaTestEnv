@@ -130,7 +130,7 @@ static volatile int b_phase2 = 0;
  */
 void __syncthreads()
 {
-	Block_t bl = getThreadIdx() ;
+//	Block_t bl = getThreadIdx() ;
 	CudaThreadLocal  *p = tls.get();
 
 //	printf("thread %d %d is waiting on barrier 1\n", bl.x, bl.y);
