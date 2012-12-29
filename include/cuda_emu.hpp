@@ -20,13 +20,18 @@ cudaError_t cudaMalloc(void ** ptr, int size) {
 	*ptr = malloc(size);
 	return cudaSuccess;
 }
-#define cudaMemcpyHostToDevice 0
-#define cudaMemcpyDeviceToHost 1
-cudaError_t cudaMemcpy(void * dest, void * src, int size, int type UNUSED){
+
+enum direction_t {
+	cudaMemcpyHostToDevice,
+	cudaMemcpyDeviceToHost
+};
+
+cudaError_t cudaMemcpy(void * dest, void * src, int size, direction_t type UNUSED) {
 	memcpy(dest,src,size);
 	return cudaSuccess;
 }
-cudaError_t cudaMemcpy2D(void * dest, int dpitch, void * src, int spitch, int size, int rows, int type __attribute__((unused))){
+
+cudaError_t cudaMemcpy2D(void * dest, int dpitch, void * src, int spitch, int size, int rows, direction_t type __attribute__((unused))){
        for (int n=0;n<rows;++n) {
                memcpy(dest,src,size);
                dest=(char*)dest+dpitch;
