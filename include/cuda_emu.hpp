@@ -16,7 +16,8 @@ typedef int cudaError_t;
 
 const static int cudaSuccess = 0;
 
-cudaError_t cudaMalloc(void ** ptr, int size) {
+cudaError_t cudaMalloc(void **ptr, int size)
+{
 	*ptr = malloc(size);
 	return cudaSuccess;
 }
@@ -26,25 +27,29 @@ enum direction_t {
 	cudaMemcpyDeviceToHost
 };
 
-cudaError_t cudaMemcpy(void * dest, void * src, int size, direction_t type UNUSED) {
-	memcpy(dest,src,size);
+cudaError_t cudaMemcpy(void *dest, void *src, int size, direction_t type UNUSED)
+{
+	memcpy(dest, src, size);
 	return cudaSuccess;
 }
 
-cudaError_t cudaMemcpy2D(void * dest, int dpitch, void * src, int spitch, int size, int rows, direction_t type __attribute__((unused))){
-       for (int n=0;n<rows;++n) {
-               memcpy(dest,src,size);
-               dest=(char*)dest+dpitch;
-               src=(char*)src+spitch;
-       }
-       return cudaSuccess;
+cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size, int rows, direction_t type __attribute__((unused)))
+{
+	for (int n = 0; n < rows; ++n) {
+		memcpy(dest, src, size);
+		dest = (char *)dest + dpitch;
+		src = (char *)src + spitch;
+	}
+	return cudaSuccess;
 }
-cudaError_t cudaFree(void * ptr) {
+cudaError_t cudaFree(void *ptr)
+{
 	free(ptr);
 	return cudaSuccess;
 }
 
-void cudaThreadSynchronize() {
+void cudaThreadSynchronize()
+{
 }
 
 
@@ -62,7 +67,7 @@ struct Block_t {
 	int z;
 	Block_t () : x(0), y(0), z(0) {
 	}
-	Block_t (int  lx, int ly, int lz) :  x(lx),y(ly),z(lz) {
+	Block_t (int  lx, int ly, int lz) :  x(lx), y(ly), z(lz) {
 	}
 };
 
@@ -73,62 +78,67 @@ struct CudaThreadLocal {
 	Block_t thread;
 	int phase1;
 	int phase2;
-	CudaThreadLocal() : block(), thread(), phase1(0),phase2(0)  {}
+	CudaThreadLocal() : block(), thread(), phase1(0), phase2(0)  {}
 };
 
-static void doNothing(CudaThreadLocal * ptr UNUSED) {
+static void doNothing(CudaThreadLocal *ptr UNUSED)
+{
 }
 
 // we don't want the thread local to call delete on the object stored in this because it is allocated off of the stack
-boost::thread_specific_ptr<CudaThreadLocal> tls (doNothing);
+boost::thread_specific_ptr<CudaThreadLocal> tls(doNothing);
 
-Block_t getBlockIdx() {
+Block_t getBlockIdx()
+{
 	CudaThreadLocal  *p = tls.get();
 	Block_t  d;
-	d.x=p->block.x;
-	d.y=p->block.y;
+	d.x = p->block.x;
+	d.y = p->block.y;
 	return d;
 }
-Block_t getThreadIdx() {
+Block_t getThreadIdx()
+{
 	CudaThreadLocal  *p = tls.get();
 	Block_t  d;
-	d.x=p->thread.x;
-	d.y=p->thread.y;
+	d.x = p->thread.x;
+	d.y = p->thread.y;
 	return d;
 }
 static Block_t g_blockDim;
-Block_t getBlockDim() {
+Block_t getBlockDim()
+{
 	return g_blockDim;
 }
 
-static int g_num_threads; 
+static int g_num_threads;
 
 static boost::shared_ptr<boost::barrier> g_barrierp;
-static boost::shared_ptr<boost::barrier> g_barrier_2p; 
+static boost::shared_ptr<boost::barrier> g_barrier_2p;
 static boost::mutex g_b_mutex1;
 static boost::mutex g_b_mutex2;
-static volatile int b_phase1=0;
-static volatile int b_phase2=0;
+static volatile int b_phase1 = 0;
+static volatile int b_phase2 = 0;
 
 
 /**
- * I'm sure there are better ways to do this. 
- * the problem here is that the boost::barrier can not be destroyed while there are there are threads that have not yet exited out of the boost:barrier wait function (it core dumps) . 
+ * I'm sure there are better ways to do this.
+ * the problem here is that the boost::barrier can not be destroyed while there are there are threads that have not yet exited out of the boost:barrier wait function (it core dumps) .
  * It would be great if the barrier object had a reset function that when called would reset the wait barrier wait count, all current threads waiting on it would be allowed to exit the function safely, and new calls to wait would decrement from wait on the new counter.
  *
  *
- * anyway, this seems to work 
+ * anyway, this seems to work
  */
-void __syncthreads() {
+void __syncthreads()
+{
 	Block_t bl = getThreadIdx() ;
 	CudaThreadLocal  *p = tls.get();
-		
+
 //	printf("thread %d %d is waiting on barrier 1\n", bl.x, bl.y);
-	g_barrierp->wait(); 
+	g_barrierp->wait();
 	{
-		boost::mutex::scoped_lock lock( g_b_mutex1);
+		boost::mutex::scoped_lock lock(g_b_mutex1);
 		if (b_phase1 == p->phase1) {
-			g_barrier_2p.reset ( new boost::barrier ( g_num_threads )) ; 
+			g_barrier_2p.reset(new boost::barrier(g_num_threads)) ;
 //			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
 			b_phase1++;
 		}
@@ -136,11 +146,11 @@ void __syncthreads() {
 
 	}
 //	printf("thread %d %d is done waiting on barrier 1\n", bl.x, bl.y);
-	g_barrier_2p->wait(); 
+	g_barrier_2p->wait();
 	{
-		boost::mutex::scoped_lock lock( g_b_mutex2);
+		boost::mutex::scoped_lock lock(g_b_mutex2);
 		if (b_phase2 == p->phase2) {
-			g_barrierp.reset ( new boost::barrier ( g_num_threads )) ; 
+			g_barrierp.reset(new boost::barrier(g_num_threads)) ;
 //			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
 			b_phase2++;
 		}
@@ -150,37 +160,39 @@ void __syncthreads() {
 }
 
 
-void setLocalAndRun(CudaThreadLocal l_tls, boost::function <void ()> func) {
+void setLocalAndRun(CudaThreadLocal l_tls, boost::function <void ()> func)
+{
 	tls.reset(&l_tls);
-	func();	
+	func();
 }
 
 
-void setupCudaSim (dim3 blocks, dim3 blocksize, boost::function <void ()  > func) {
+void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
+{
 	int numThreads = blocksize.x * blocksize.y;
-	ThreadProcessor processor( numThreads *2, numThreads);
+	ThreadProcessor processor(numThreads * 2, numThreads);
 	g_num_threads = numThreads ;
 
 	g_blockDim.x = blocksize.x;
 	g_blockDim.y = blocksize.y;
 	g_blockDim.z = blocksize.z;
-	for (int b_x=0; b_x< blocks.x; b_x++) {
+	for (int b_x = 0; b_x < blocks.x; b_x++) {
 
-		for (int b_y=0; b_y< blocks.y; b_y++) {
+		for (int b_y = 0; b_y < blocks.y; b_y++) {
 
 			BatchTracker currentJob(&processor);
-			g_barrierp. reset ( new boost::barrier ( g_num_threads )) ; 
-			for (int t_x=0; t_x< blocksize.x; t_x++) {
-				for (int t_y=0; t_y< blocksize.y; t_y++) {
+			g_barrierp. reset(new boost::barrier(g_num_threads)) ;
+			for (int t_x = 0; t_x < blocksize.x; t_x++) {
+				for (int t_y = 0; t_y < blocksize.y; t_y++) {
 					CudaThreadLocal tl;
-					tl.block.x =b_x;
-					tl.block.y =b_y;
-					tl.thread.x =t_x;
-					tl.thread.y =t_y;
-					currentJob.post(boost::bind(setLocalAndRun,tl, func)); 
+					tl.block.x = b_x;
+					tl.block.y = b_y;
+					tl.thread.x = t_x;
+					tl.thread.y = t_y;
+					currentJob.post(boost::bind(setLocalAndRun, tl, func));
 				}
 			}
-			currentJob.wait_until_done(); 
+			currentJob.wait_until_done();
 		}
 	}
 
