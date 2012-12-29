@@ -1,4 +1,4 @@
-PROGS= mp1 mp2 mp3
+PROGS= mp1 mp2 mp3 mp4
 LD=g++
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SHARED_DEPS = $(HEADERS) Makefile
@@ -31,12 +31,18 @@ vecC.txt: GenDataMP1
 matC.txt: GenDataMP2
 	./GenDataMP2 90 10 39 
 
+vecSumResult.txt: GenDataMP4
+	./GenDataMP4 1000 
+
 run1: mp1 vecC.txt
 	./mp1  vecA.txt vecB.txt vecC.txt
 run2: mp2 matC.txt
 	./mp2 matA.txt matB.txt matC.txt
 run3: mp3 matC.txt
 	./mp3 matA.txt matB.txt matC.txt
+
+run4: mp4 vecSumResult.txt
+	./mp4 vecSumA.txt vecSumResult.txt vecSumResult.txt 
 
 run: run1 run2 run2
 
