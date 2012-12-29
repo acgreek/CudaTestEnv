@@ -178,19 +178,19 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 
 		for (int b_y = 0; b_y < blocks.y; b_y++) {
 
-			BatchTracker currentJob(&processor);
-			g_barrierp. reset(new boost::barrier(g_num_threads)) ;
-			for (int t_x = 0; t_x < blocksize.x; t_x++) {
-				for (int t_y = 0; t_y < blocksize.y; t_y++) {
-					CudaThreadLocal tl;
-					tl.block.x = b_x;
-					tl.block.y = b_y;
-					tl.thread.x = t_x;
-					tl.thread.y = t_y;
-					currentJob.post(boost::bind(setLocalAndRun, tl, func));
+			for (int b_z = 0; b_z < blocks.z; b_z++) {
+				BatchTracker currentJob(&processor);
+				g_barrierp. reset(new boost::barrier(g_num_threads)) ;
+				for (int t_x = 0; t_x < blocksize.x; t_x++) {
+					for (int t_y = 0; t_y < blocksize.y; t_y++) {
+						for (int t_z = 0; t_z < blocksize.z; t_z++) {
+							CudaThreadLocal tl(Block_t(b_x, b_y,b_z), Block_t(t_x, t_y,t_z));
+							currentJob.post(boost::bind(setLocalAndRun, tl, func));
+						}
+					}
 				}
+				currentJob.wait_until_done();
 			}
-			currentJob.wait_until_done();
 		}
 	}
 
