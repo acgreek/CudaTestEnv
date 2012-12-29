@@ -29,6 +29,7 @@ vecC.txt: GenDataMP1
 	./GenDataMP1 90
 
 matC.txt: GenDataMP2
+	./GenDataMP2 90 10 39 
 
 run1: mp1 vecC.txt
 	./mp1  vecA.txt vecB.txt vecC.txt
