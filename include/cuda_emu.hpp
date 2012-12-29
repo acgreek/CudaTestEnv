@@ -14,7 +14,8 @@
 typedef int cudaError_t;
 
 
-#define cudaSuccess  0
+const static int cudaSuccess = 0;
+
 cudaError_t cudaMalloc(void ** ptr, int size) {
 	*ptr = malloc(size);
 	return cudaSuccess;
