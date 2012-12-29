@@ -56,16 +56,15 @@ void cudaThreadSynchronize() {
 #define threadIdx getThreadIdx()
 #define blockDim getBlockDim()
 
-typedef struct _Block_t  {
+struct Block_t {
 	int x;
 	int y;
 	int z;
-	_Block_t () : x(0), y(0), z(0) {
+	Block_t () : x(0), y(0), z(0) {
 	}
-	_Block_t (int  lx, int ly, int lz) :  x(lx),y(ly),z(lz) {
+	Block_t (int  lx, int ly, int lz) :  x(lx),y(ly),z(lz) {
 	}
-
-} Block_t;
+};
 
 typedef Block_t dim3;
 
