@@ -21,3 +21,4 @@ mat*.txt
 
 # Garbage
 *~
+*.orig

@@ -105,8 +105,7 @@ public:
  * Use this to post a series of jobs to run in parallel and then wait for
  * them to complete in the scheduling thread
  */
-class BatchTracker : boost::noncopyable
-{
+class BatchTracker : boost::noncopyable {
 public:
 	BatchTracker(ThreadProcessor *threadProcessorp):
 		number_of_jobs_total(0), number_of_jobs_complete(0),
@@ -184,7 +183,7 @@ private:
 				now = time(NULL);
 			}
 		} while (number_of_jobs_complete != number_of_jobs_total &&
-			 (max_seconds == 0 || ((now - start) < max_seconds)));
+		         (max_seconds == 0 || ((now - start) < max_seconds)));
 		return (number_of_jobs_complete == number_of_jobs_total);
 	}
 

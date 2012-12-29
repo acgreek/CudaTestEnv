@@ -162,7 +162,7 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
     std::string sval;
     float fval;
     std::vector<float> fVec;
-    int itemNum = 0;
+    size_t itemNum = 0;
 
     // Read in matrix dimensions
     inFile >> *numRows;
@@ -176,18 +176,17 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
     }
 
     // Vector to malloc memory
+    itemNum = *numRows * *numCols;
 
-    if (fVec.size() != (*numRows * *numCols))
+    if (fVec.size() != itemNum)
     {
         std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
         exit(1);
     }
 
-    itemNum = *numRows * *numCols;
-
     float* fBuf = (float*) malloc(itemNum * sizeof(float));
 
-    for (int i = 0; i < itemNum; ++i)
+    for (size_t i = 0; i < itemNum; ++i)
     {
         fBuf[i] = fVec[i];
     }
