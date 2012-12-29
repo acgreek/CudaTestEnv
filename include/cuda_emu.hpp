@@ -197,5 +197,11 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 	return ;
 }
 
+void setupCudaSim(const unsigned blocks_x, const unsigned int blocksize_x, boost::function <void ()  > func)
+{
+    dim3 dimGrid(blocks_x,1, 1) ;
+    dim3 dimBlock(blocksize_x, 1,1);
+    setupCudaSim (dimGrid , dimBlock ,func);
+}
 
 #endif

@@ -55,13 +55,11 @@ int main(int argc, char ** argv) {
      int block_size = 16;
      int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);
 
-    dim3 dimGrid(n_blocks,1, 1) ;
-    dim3 dimBlock(block_size, 1,1);
 
 #ifndef CUDA_EMU
     vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength);
 #else
-    setupCudaSim (dimGrid , dimBlock , boost::bind(vecAdd,deviceInput1,deviceInput2,deviceOutput, inputLength));
+    setupCudaSim (n_blocks, block_size, boost::bind(vecAdd,deviceInput1,deviceInput2,deviceOutput, inputLength));
 #endif
 
 
