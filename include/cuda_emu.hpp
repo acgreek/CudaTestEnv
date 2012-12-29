@@ -54,6 +54,7 @@ void cudaThreadSynchronize()
 
 
 #define __global__
+
 #define __shared__ volatile static
 
 
@@ -88,23 +89,18 @@ static void doNothing(CudaThreadLocal *ptr UNUSED)
 // we don't want the thread local to call delete on the object stored in this because it is allocated off of the stack
 boost::thread_specific_ptr<CudaThreadLocal> tls(doNothing);
 
-Block_t getBlockIdx()
+const Block_t getBlockIdx()
 {
 	CudaThreadLocal  *p = tls.get();
-	Block_t  d;
-	d.x = p->block.x;
-	d.y = p->block.y;
-	return d;
+	return p->block;
 }
-Block_t getThreadIdx()
+const Block_t getThreadIdx()
 {
 	CudaThreadLocal  *p = tls.get();
-	Block_t  d;
-	d.x = p->thread.x;
-	d.y = p->thread.y;
-	return d;
+	return p->thread;
 }
 static Block_t g_blockDim;
+
 Block_t getBlockDim()
 {
 	return g_blockDim;
