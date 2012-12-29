@@ -80,6 +80,8 @@ struct CudaThreadLocal {
 	int phase1;
 	int phase2;
 	CudaThreadLocal() : block(), thread(), phase1(0), phase2(0)  {}
+	CudaThreadLocal(Block_t  lblock, Block_t lthread) : block(lblock), thread(lthread), phase1(0), phase2(0)  {}
+
 };
 
 static void doNothing(CudaThreadLocal *ptr UNUSED)
