@@ -33,7 +33,7 @@ cudaError_t cudaMemcpy(void *dest, void *src, int size, direction_t type UNUSED)
 	return cudaSuccess;
 }
 
-cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size, int rows, direction_t type __attribute__((unused)))
+cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size, int rows, direction_t type UNUSED)
 {
 	for (int n = 0; n < rows; ++n) {
 		memcpy(dest, src, size);
