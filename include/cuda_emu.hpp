@@ -40,6 +40,12 @@ cudaError_t cudaMemcpy(void *dest, void *src, int size, direction_t type UNUSED)
 	return cudaSuccess;
 }
 
+cudaError_t cudaMemset(void* 	devPtr, int 	value, size_t 	counter ) {
+	memset(devPtr, value, counter);
+	return cudaSuccess;
+
+}
+
 cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size, int rows, direction_t type UNUSED)
 {
 	for (int n = 0; n < rows; ++n) {
