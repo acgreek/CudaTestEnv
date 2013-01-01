@@ -5,7 +5,7 @@ SHARED_DEPS = $(HEADERS) Makefile
 
 CFLAGS = -g -Os -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
 CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU 
-LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt -stdc++
+LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt
 
 
 all: mp1 GenDataMP1 GenDataMP2 
