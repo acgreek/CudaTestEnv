@@ -421,7 +421,7 @@ template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
 {
     int solnItems;
-    float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnItems);
+    float *soln = (float *) wbImport(wbArg_getInputFile(args, 1), &solnItems);
 
     if (solnItems != s)
     {

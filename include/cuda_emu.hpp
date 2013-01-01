@@ -1,6 +1,7 @@
 #ifndef CUDA_EMU_HPP
 #define CUDA_EMU_HPP
 
+#include <malloc.h>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
@@ -18,7 +19,13 @@ const static int cudaSuccess = 0;
 
 cudaError_t cudaMalloc(void **ptr, int size)
 {
-	*ptr = malloc(size);
+	*ptr = memalign(256, size);
+	return cudaSuccess;
+}
+cudaError_t cudaMallocPitch(void **ptr, size_t *pitch, size_t width, size_t height)
+{
+	*pitch = (width+255)&~255;
+	*ptr = memalign(256, (*pitch)*height);
 	return cudaSuccess;
 }
 
