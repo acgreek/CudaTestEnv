@@ -8,7 +8,7 @@ CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU
 LDFLAGS = -lboost_thread-mt -lboost_system-mt -lrt
 
 
-all: mp1 GenDataMP1 GenDataMP2 
+all: mp1 GenDataMP1 GenDataMP2 GenDataMP4
 
 .SUFFIXES:
 .PRECIOUS: %.o
@@ -20,6 +20,9 @@ all: mp1 GenDataMP1 GenDataMP2
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cc $(SHARED_DEPS)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.cpp $(SHARED_DEPS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
