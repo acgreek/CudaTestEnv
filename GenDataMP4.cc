@@ -54,7 +54,7 @@ int main( int argc, const char** argv )
     // Info for user
 
     std::cout << "GenDataMP4: Generates data files to use as input for assignment MP.\n";
-    std::cout << "Invoke as: GenDataMP1 [VectorLength]\n\n";
+    std::cout << "Invoke as: " << argv[0] << " [VectorLength]\n\n";
 
     // Read input
 
