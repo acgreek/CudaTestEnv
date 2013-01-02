@@ -60,9 +60,9 @@ cudaError_t cudaFree(void *ptr)
 	free(ptr);
 	return cudaSuccess;
 }
-
-void cudaThreadSynchronize()
+cudaError_t cudaThreadSynchronize()
 {
+	return cudaSuccess;
 }
 
 
