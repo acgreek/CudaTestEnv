@@ -64,6 +64,10 @@ cudaError_t cudaThreadSynchronize()
 {
 	return cudaSuccess;
 }
+cudaError_t cudaDeviceSynchronize()
+{
+	return cudaSuccess;
+}
 
 
 #define __global__
