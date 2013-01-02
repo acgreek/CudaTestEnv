@@ -22,10 +22,11 @@ cudaError_t cudaMalloc(void **ptr, int size)
 	*ptr = memalign(256, size);
 	return cudaSuccess;
 }
+
 cudaError_t cudaMallocPitch(void **ptr, size_t *pitch, size_t width, size_t height)
 {
-	*pitch = (width+255)&~255;
-	*ptr = memalign(256, (*pitch)*height);
+	*pitch = (width + 255) & ~255;
+	*ptr = memalign(256, (*pitch) * height);
 	return cudaSuccess;
 }
 
@@ -40,7 +41,8 @@ cudaError_t cudaMemcpy(void *dest, void *src, int size, direction_t type UNUSED)
 	return cudaSuccess;
 }
 
-cudaError_t cudaMemset(void* 	devPtr, int 	value, size_t 	counter ) {
+cudaError_t cudaMemset(void *devPtr, int value, size_t counter)
+{
 	memset(devPtr, value, counter);
 	return cudaSuccess;
 
@@ -50,20 +52,23 @@ cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size
 {
 	for (int n = 0; n < rows; ++n) {
 		memcpy(dest, src, size);
-		dest = (char *)dest + dpitch;
-		src = (char *)src + spitch;
+		dest = (char *) dest + dpitch;
+		src = (char *) src + spitch;
 	}
 	return cudaSuccess;
 }
+
 cudaError_t cudaFree(void *ptr)
 {
 	free(ptr);
 	return cudaSuccess;
 }
+
 cudaError_t cudaThreadSynchronize()
 {
 	return cudaSuccess;
 }
+
 cudaError_t cudaDeviceSynchronize()
 {
 	return cudaSuccess;
@@ -110,14 +115,16 @@ boost::thread_specific_ptr<CudaThreadLocal> tls(doNothing);
 
 const Block_t getBlockIdx()
 {
-	CudaThreadLocal  *p = tls.get();
+	CudaThreadLocal *p = tls.get();
 	return p->block;
 }
+
 const Block_t getThreadIdx()
 {
-	CudaThreadLocal  *p = tls.get();
+	CudaThreadLocal *p = tls.get();
 	return p->thread;
 }
+
 static Block_t g_blockDim;
 
 Block_t getBlockDim()
@@ -146,18 +153,18 @@ static volatile int b_phase2 = 0;
 void __syncthreads()
 {
 //	Block_t bl = getThreadIdx() ;
-	CudaThreadLocal  *p = tls.get();
+	CudaThreadLocal *p = tls.get();
 
 //	printf("thread %d %d is waiting on barrier 1\n", bl.x, bl.y);
 	g_barrierp->wait();
 	{
 		boost::mutex::scoped_lock lock(g_b_mutex1);
 		if (b_phase1 == p->phase1) {
-			g_barrier_2p.reset(new boost::barrier(g_num_threads)) ;
+			g_barrier_2p.reset(new boost::barrier(g_num_threads));
 //			printf("thread %d %d reset barrier 1\n", bl.x, bl.y);
 			b_phase1++;
 		}
-		p->phase1 = b_phase1 ;
+		p->phase1 = b_phase1;
 
 	}
 //	printf("thread %d %d is done waiting on barrier 1\n", bl.x, bl.y);
@@ -165,11 +172,11 @@ void __syncthreads()
 	{
 		boost::mutex::scoped_lock lock(g_b_mutex2);
 		if (b_phase2 == p->phase2) {
-			g_barrierp.reset(new boost::barrier(g_num_threads)) ;
+			g_barrierp.reset(new boost::barrier(g_num_threads));
 //			printf("thread %d %d reset barrier 2\n", bl.x, bl.y);
 			b_phase2++;
 		}
-		p->phase2 = b_phase2 ;
+		p->phase2 = b_phase2;
 
 	}
 }
@@ -186,7 +193,7 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 {
 	int numThreads = blocksize.x * blocksize.y;
 	ThreadProcessor processor(numThreads * 2, numThreads);
-	g_num_threads = numThreads ;
+	g_num_threads = numThreads;
 
 	g_blockDim.x = blocksize.x;
 	g_blockDim.y = blocksize.y;
@@ -197,11 +204,11 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 
 			for (int b_z = 0; b_z < blocks.z; b_z++) {
 				BatchTracker currentJob(&processor);
-				g_barrierp. reset(new boost::barrier(g_num_threads)) ;
+				g_barrierp.reset(new boost::barrier(g_num_threads));
 				for (int t_x = 0; t_x < blocksize.x; t_x++) {
 					for (int t_y = 0; t_y < blocksize.y; t_y++) {
 						for (int t_z = 0; t_z < blocksize.z; t_z++) {
-							CudaThreadLocal tl(Block_t(b_x, b_y,b_z), Block_t(t_x, t_y,t_z));
+							CudaThreadLocal tl(Block_t(b_x, b_y, b_z), Block_t(t_x, t_y, t_z));
 							currentJob.post(boost::bind(setLocalAndRun, tl, func));
 						}
 					}
@@ -211,14 +218,14 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 		}
 	}
 
-	return ;
+	return;
 }
 
 void setupCudaSim(const unsigned blocks_x, const unsigned int blocksize_x, boost::function <void ()  > func)
 {
-    dim3 dimGrid(blocks_x,1, 1) ;
-    dim3 dimBlock(blocksize_x, 1,1);
-    setupCudaSim (dimGrid , dimBlock ,func);
+	dim3 dimGrid(blocks_x, 1, 1);
+	dim3 dimBlock(blocksize_x, 1, 1);
+	setupCudaSim(dimGrid, dimBlock, func);
 }
 
 #endif
