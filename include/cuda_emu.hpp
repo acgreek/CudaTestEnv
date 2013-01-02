@@ -48,7 +48,8 @@ cudaError_t cudaMemset(void *devPtr, int value, size_t counter)
 
 }
 
-cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch, int size, int rows, direction_t type UNUSED)
+cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch,
+			 int size, int rows, direction_t type UNUSED)
 {
 	for (int n = 0; n < rows; ++n) {
 		memcpy(dest, src, size);
@@ -102,7 +103,8 @@ struct CudaThreadLocal {
 	int phase1;
 	int phase2;
 	CudaThreadLocal() : block(), thread(), phase1(0), phase2(0)  {}
-	CudaThreadLocal(Block_t  lblock, Block_t lthread) : block(lblock), thread(lthread), phase1(0), phase2(0)  {}
+	CudaThreadLocal(Block_t lblock, Block_t lthread) : block(lblock),
+		thread(lthread), phase1(0), phase2(0) {}
 
 };
 
@@ -144,11 +146,17 @@ static volatile int b_phase2 = 0;
 
 /**
  * I'm sure there are better ways to do this.
- * the problem here is that the boost::barrier can not be destroyed while there are there are threads that have not yet exited out of the boost:barrier wait function (it core dumps) .
- * It would be great if the barrier object had a reset function that when called would reset the wait barrier wait count, all current threads waiting on it would be allowed to exit the function safely, and new calls to wait would decrement from wait on the new counter.
  *
+ * The problem here is that the boost::barrier can not be destroyed while
+ * there are there are threads that have not yet exited out of the
+ * boost::barrier wait function (it core dumps).
  *
- * anyway, this seems to work
+ * It would be great if the barrier object had a reset function that when
+ * called would reset the wait barrier wait count, all current threads
+ * waiting on it would be allowed to exit the function safely, and new calls
+ * to wait would decrement from wait on the new counter.
+ *
+ * Anyway, this seems to work.
  */
 void __syncthreads()
 {
@@ -221,7 +229,8 @@ void setupCudaSim(dim3 blocks, dim3 blocksize, boost::function <void ()  > func)
 	return;
 }
 
-void setupCudaSim(const unsigned blocks_x, const unsigned int blocksize_x, boost::function <void ()  > func)
+void setupCudaSim(const unsigned blocks_x, const unsigned int blocksize_x,
+		  boost::function <void ()> func)
 {
 	dim3 dimGrid(blocks_x, 1, 1);
 	dim3 dimBlock(blocksize_x, 1, 1);
