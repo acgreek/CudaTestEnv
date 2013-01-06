@@ -1,4 +1,4 @@
-PROGS= mp1 mp2 mp3 mp4
+PROGS= mp1 mp2 mp3 mp4 mp5
 LD=g++
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SHARED_DEPS = $(HEADERS) Makefile
@@ -8,7 +8,8 @@ CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU
 LDFLAGS = -lboost_thread-mt -lrt
 
 
-all: mp1 GenDataMP1 GenDataMP2 GenDataMP4
+all: $(PROGS) GenDataMP1 GenDataMP2 GenDataMP4 GenDataMP5
+
 
 .SUFFIXES:
 .PRECIOUS: %.o
@@ -37,6 +38,9 @@ matC.txt: GenDataMP2
 vecSumResult.txt: GenDataMP4
 	./GenDataMP4 1000 
 
+vecCumSumResult.txt: GenDataMP5
+	./GenDataMP5 100
+
 run1: mp1 vecC.txt
 	./mp1  vecA.txt vecB.txt vecC.txt
 run2: mp2 matC.txt
@@ -47,7 +51,10 @@ run3: mp3 matC.txt
 run4: mp4 vecSumResult.txt
 	./mp4 vecSumA.txt vecSumResult.txt vecSumResult.txt 
 
-run: run1 run2 run2
+run5: mp5 vecCumSumResult.txt
+	./mp5 vecCumSumA.txt vecCumSumResult.txt vecCumSumResult.txt 
+
+run: run1 run2 run3 run4 run5
 
 # Unfortunately, Debian's astyle 2.01 doesn't support --align-reference=name
 # This should be included when version 2.02 is used.
