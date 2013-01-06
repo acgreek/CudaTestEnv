@@ -15,6 +15,9 @@
 *.exe
 *.out
 *.app
+GenDataMP[0-9]
+mp[0-9]
+
 
 vec*.txt
 mat*.txt
