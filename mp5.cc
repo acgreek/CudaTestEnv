@@ -1,5 +1,11 @@
-// MP 5 
-#include	<wb.h>
+// MP 5 Scan
+// Given a list (lst) of length n
+// Output its prefix sum = {lst[0], lst[0] + lst[1], lst[0] + lst[1] + ... + lst[n-1]}
+// Due Tuesday, January 22, 2013 at 11:59 p.m. PST
+
+#include    <wb.h>
+
+#define BLOCK_SIZE 512 //@@ You can change this
 
 #define wbCheck(stmt) do {                                 \
         cudaError_t err = stmt;                            \
@@ -9,79 +15,66 @@
         }                                                  \
     } while(0)
 
-__global__ void vecCumSum(float * in1, float * out, int len) {
-
+__global__ void scan(float * input, float * output, int len) {
+    //@@ Modify the body of this function to complete the functionality of
+    //@@ the scan on the device
+    //@@ You may need multiple kernel calls; write your kernels before this
+    //@@ function and call them from here
 }
 
 int main(int argc, char ** argv) {
     wbArg_t args;
-    int inputLength;
-    float * hostInput1;
-    float * hostOutput;
-    float * deviceInput1;
+    float * hostInput; // The input 1D list
+    float * hostOutput; // The output list
+    float * deviceInput;
     float * deviceOutput;
+    int numElements; // number of elements in the list
 
     args = wbArg_read(argc, argv);
 
     wbTime_start(Generic, "Importing data and creating memory on host");
-    hostInput1 = (float *) wbImport(wbArg_getInputFile(args, 0), &inputLength);
-    hostOutput = (float *) malloc(inputLength * sizeof(float));
+    hostInput = (float *) wbImport(wbArg_getInputFile(args, 0), &numElements);
+    hostOutput = (float*) malloc(numElements * sizeof(float));
     wbTime_stop(Generic, "Importing data and creating memory on host");
 
-    wbLog(TRACE, "The input length is ", inputLength, " elements");
+    wbLog(TRACE, "The number of input elements in the input is ", numElements);
 
     wbTime_start(GPU, "Allocating GPU memory.");
-    //@@ Allocate GPU memory here
-    int byteSize =inputLength * sizeof(float);
-
+    wbCheck(cudaMalloc((void**)&deviceInput, numElements*sizeof(float)));
+    wbCheck(cudaMalloc((void**)&deviceOutput, numElements*sizeof(float)));
     wbTime_stop(GPU, "Allocating GPU memory.");
 
+    wbTime_start(GPU, "Clearing output memory.");
+    wbCheck(cudaMemset(deviceOutput, 0, numElements*sizeof(float)));
+    wbTime_stop(GPU, "Clearing output memory.");
+
     wbTime_start(GPU, "Copying input memory to the GPU.");
-    //@@ Copy memory to the GPU here
-
-    wbCheck(cudaMalloc((void **) &deviceInput1, byteSize));
-    wbCheck(cudaMalloc((void **) &deviceOutput, byteSize));
-
+    wbCheck(cudaMemcpy(deviceInput, hostInput, numElements*sizeof(float), cudaMemcpyHostToDevice));
     wbTime_stop(GPU, "Copying input memory to the GPU.");
 
     //@@ Initialize the grid and block dimensions here
-    wbCheck(cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice));
-
 
     wbTime_start(Compute, "Performing CUDA computation");
-    //@@ Launch the GPU Kernel here
-     int block_size = 16;
-     int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);
+    //@@ Modify this to complete the functionality of the scan
+    //@@ on the deivce
 
-
-#ifndef CUDA_EMU
-    vecCumAdd<<< n_blocks, block_size>>>(deviceInput1, deviceOutput, inputLength);
-#else
-    setupCudaSim (n_blocks, block_size, boost::bind(vecCumSum,deviceInput1,deviceOutput, inputLength));
-#endif
-
-
-    wbCheck(cudaThreadSynchronize());
+    cudaDeviceSynchronize();
     wbTime_stop(Compute, "Performing CUDA computation");
 
     wbTime_start(Copy, "Copying output memory to the CPU");
-    //@@ Copy the GPU memory back to the CPU here
-    wbCheck(cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost));
-
+    wbCheck(cudaMemcpy(hostOutput, deviceOutput, numElements*sizeof(float), cudaMemcpyDeviceToHost));
     wbTime_stop(Copy, "Copying output memory to the CPU");
 
     wbTime_start(GPU, "Freeing GPU Memory");
-    //@@ Free the GPU memory here
-
-    wbCheck(cudaFree(deviceInput1));
-    wbCheck(cudaFree(deviceOutput));
-
+    cudaFree(deviceInput);
+    cudaFree(deviceOutput);
     wbTime_stop(GPU, "Freeing GPU Memory");
 
-    wbSolution(args, hostOutput, inputLength);
+    wbSolution(args, hostOutput, numElements);
 
-    free(hostInput1);
+    free(hostInput);
     free(hostOutput);
 
     return 0;
 }
+
