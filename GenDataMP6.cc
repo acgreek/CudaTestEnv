@@ -9,8 +9,12 @@
 
 typedef std::vector< float > FloatVec;
 
+bool g_generateSmallInt=false;
+
 float genRandomFloat()
 {
+    if ( g_generateSmallInt)
+	    return rand() %10;
     return ( (float) rand() / RAND_MAX );
 }
 
@@ -32,21 +36,30 @@ void genMatrix( FloatVec&mat, int rows, int cols )
 
 float sumAt( FloatVec& in,FloatVec& mask, int xC, int yC, int cC, int xMax, int yMax, int cMax) {
     	float sum=0;
-	for (int x = max(xC -2, 0); x < min(xMax,xC+2); x++) {
-		for (int y =max(yC -2,0); y < min(yMax,yC+2); y++) {
-			int index = (y*xMax +x)*cMax + cC;
-			sum+= in[index]*mask[y*5+x];
+	int mY=0;
+	for (int y =yC-2; y < min(yMax,yC+3); y++) {
+		int mX=0;
+		for (int x = xC-2; x < min(xMax,xC+3); x++) {
+			if (y >=0 && x >=0) {
+				int index = (y*xMax +x)*cMax + cC;
+		//		std::cout << "at x=" << x << " y=" << y << " c=" << cC << " adding " << sum << " to " << in[index]*mask[mY*5+mX] << " in[index]=" << in[index]<< " mask[mY*5+mX] =" <<mask[mY*5+mX]   << " mY=" << mY << " mX=" << mX ;
+				sum+= in[index]*mask[mY*5+mX];
+		//		std::cout << "result sum " << sum << std::endl;
+			}
+			mX++;
 		}
+		mY++;
 	}
 
+//	std::cout << "done with sum:  " << sum << std::endl;
 	return sum;
 }
 #define UNUSED __attribute__((unused))
 void sumVector( FloatVec& in,FloatVec &out,FloatVec &mask, UNUSED const int mXLen,UNUSED const int mYLen, const int xLen,const int yLen, const int cLen)
 {
     out.clear();
-    for ( int x = 0; x < (int) xLen; ++x ) {
-	    for ( int y = 0; y < (int) yLen; ++y) {
+    for ( int y = 0; y < (int) yLen; ++y) {
+    	for ( int x = 0; x < (int) xLen; ++x ) {
 	    	for ( int c = 0; c < (int) cLen; ++c) {
         		out.push_back(sumAt(in,mask, x,y,c, xLen, yLen, cLen));
 		}
@@ -71,8 +84,14 @@ void writeVector( const FloatVec& vec, const int xLen,const int yLen, const int 
     outFile << yLen << std::endl;
     outFile << cLen << std::endl;
 
-    for ( int i = 0; i < (xLen*yLen*cLen); ++i ) {
-        outFile << vec[i] << std::endl;
+    for ( int y = 0; y < (yLen); ++y ) {
+    	for ( int x = 0; x < (xLen); ++x ) {
+		    for ( int c = 0; c < (cLen); ++c ) {
+			    int index = (y*xLen +x)*cLen + c;
+			    outFile << vec[index] << " ";
+		    }
+	    }
+	    outFile << std::endl;
     }
 }
 void writeMatrix(const FloatVec& mat, int rows, int cols, const char* fname )
@@ -108,15 +127,19 @@ int main( int argc, const char** argv )
     // Info for user
 
     std::cout <<argv[0] << ": Generates data files to use as input for assignment MP.\n";
-    std::cout << "Invoke as: " << argv[0] << " [X] [Y] [Channels] [MaskX] [MaskY]\n\n";
+    std::cout << "Invoke as: " << argv[0] << " [X] [Y] [Channels] [MaskX] [MaskY] (" << argc << ")\n\n";
 
     // Read input
 
-    if ( 6 != argc )
+    if ( 6 > argc )
     {
         std::cout << "Error! Wrong number of arguments to program.\n";
         return 0;
     }
+    if (7 == argc)
+	    g_generateSmallInt=true;
+
+    
 
     // Create vectors
 

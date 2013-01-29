@@ -42,7 +42,7 @@ add_custom_command(OUTPUT vecA.txt vecB.txt vecC.txt COMMAND  GenDataMP1 90 DEPE
 add_custom_command(OUTPUT matA.txt matB.txt matC.txt COMMAND  GenDataMP2 90 10 39 DEPENDS GenDataMP2)
 add_custom_command(OUTPUT vecSumA.txt vecSumResult.txt vecSumResult.txt COMMAND GenDataMP4 1000 DEPENDS GenDataMP4)
 add_custom_command(OUTPUT vecCumSumA.txt vecCumSumResult.txt vecCumSumResult.txt COMMAND GenDataMP5 100 DEPENDS GenDataMP5)
-add_custom_command(OUTPUT imageInput.txt convolutionMatrix.txt imageOutput.txt COMMAND GenDataMP6 10 10 3 5 5 DEPENDS GenDataMP6)
+add_custom_command(OUTPUT imageInput.txt convolutionMatrix.txt imageOutput.txt COMMAND GenDataMP6 10 10 3 5 5 bl DEPENDS GenDataMP6)
 
 add_custom_target(run1 mp1 vecA.txt vecB.txt vecC.txt DEPENDS vecA.txt vecB.txt vecC.txt )
 add_custom_target(run2 mp2 matA.txt matB.txt matC.txt DEPENDS matA.txt matB.txt matC.txt)
