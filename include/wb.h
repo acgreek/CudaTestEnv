@@ -569,7 +569,40 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
         
     return;
 }
-void wbSolution(UNUSED wbArg_t args, UNUSED wbImage_t &outputImage) {
+void wbSolution(wbArg_t args, UNUSED wbImage_t &outputImage) {
+    const char * expectedOutputImageFile;
+    wbImage_t expectedOutputImage;
+    expectedOutputImageFile = wbArg_getInputFile(args, 2);
+    expectedOutputImage = wbImport(expectedOutputImageFile);
+    if (expectedOutputImage.width !=outputImage.width|| expectedOutputImage.height !=outputImage.height|| expectedOutputImage.channels !=outputImage.channels)
+    {
+        std::cout << "Size of solution does not match. ";
+        std::cout << "Expecting " << expectedOutputImage.width << " x " << expectedOutputImage.height << " c " <<expectedOutputImage.channels << " but got " 
+			<< outputImage.width << " x " << outputImage.height << " c " <<outputImage.channels ;
+	std::cout << std::endl;
+        return;
+    }
+    wbImage_t e= expectedOutputImage;
+
+    int errCnt = 0;
+    for (int x=0; x < e.width; x++) {
+    	for (int y=0; y < e.height; y++) {
+    		for (int c=0; c < e.channels; c++) {
+			int index = (y*e.width+x)*e.channels + c;
+			if (e.data[index] != outputImage.data[index])  {
+                		std::cout << "Solution does not match at (" << x << ", " << y <<" channel " << c << "). ";
+                		std::cout << "Expecting " <<e.data[index] << " but got " << outputImage.data[index]<< ".\n";
+                		errCnt++;
+			}
+		}
+	}
+    }
+    if (!errCnt)
+        std::cout << "All tests passed!\n";
+    else
+        std::cout << errCnt << " tests failed.\n";
+   
+
     return;
 
 }
