@@ -29,6 +29,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/include")
 
 foreach(_app ${TO_BUILD}) 
 	add_executable(${_app} "${_app}.cc")
+	if(UNIX AND NOT APPLE)
+	    target_link_libraries(${_app} rt)
+	endif()
 endforeach()
 
 foreach(_app ${DEPEND_BT}) 
