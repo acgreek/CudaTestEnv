@@ -3,9 +3,9 @@ LD=g++
 HEADERS = $(wildcard include/*.h) $(wildcard include/*.hpp)
 SHARED_DEPS = $(HEADERS) Makefile
 
-CFLAGS = -g -Os -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
-CXXFLAGS = -g -Os -Wall -Wextra -Iinclude/ -DCUDA_EMU 
-LDFLAGS = -lboost_thread-mt -lrt
+CFLAGS = -g3 -O0 -Wall -Wextra -Iinclude/ -std=c99 -DCUDA_EMU
+CXXFLAGS = -g3 -O0 -Wall -Wextra -Iinclude/ -DCUDA_EMU 
+LDFLAGS = -g3 -lboost_thread-mt -lboost_system-mt
 
 
 all: $(PROGS) GenDataMP1 GenDataMP2 GenDataMP4 GenDataMP5
