@@ -1,7 +1,11 @@
 #ifndef CUDA_EMU_HPP
 #define CUDA_EMU_HPP
 
+#ifdef __APPLE__
+#include <malloc.h>
+#else 
 #include <string.h>
+#endif
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
@@ -14,8 +18,9 @@
 
 typedef int cudaError_t;
 
+#ifdef __APPLE__
 // Shamelessly copied from http://pastebin.com/TTcbie7F (no license; anonymous author)
-void *aligned_malloc( size_t size, int align )
+void *aligned_malloc(  int align, size_t size)
 {
     void *mem = malloc( size + (align-1) + sizeof(void*) );
 
@@ -31,19 +36,23 @@ void aligned_free( void *mem )
     free( ((void**)mem)[-1] );
 }
 // End shameless copy
+#else 
+#define aligned_malloc  memalign
+#define aligned_free free
+#endif
 
 const static int cudaSuccess = 0;
 
 cudaError_t cudaMalloc(void **ptr, size_t size)
 {
-	*ptr = aligned_malloc(size, 256);
+	*ptr = aligned_malloc(256,size);
 	return cudaSuccess;
 }
 
 cudaError_t cudaMallocPitch(void **ptr, size_t *pitch, size_t width, size_t height)
 {
 	*pitch = (width + 255) & ~255;
-	*ptr = aligned_malloc((*pitch) * height, 256);
+	*ptr = aligned_malloc(256,(*pitch) * height);
 	return cudaSuccess;
 }
 
