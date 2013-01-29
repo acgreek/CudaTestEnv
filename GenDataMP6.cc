@@ -16,7 +16,7 @@ float genRandomFloat()
 
 void genVector( FloatVec& vec, const int xLen,const int yLen, const int cLen)
 {
-    for ( int i = 0; i < (xLen+yLen+cLen); ++i )
+    for ( int i = 0; i < (xLen*yLen*cLen); ++i )
         vec.push_back( genRandomFloat() );
 }
 void genMatrix( FloatVec&mat, int rows, int cols )
@@ -70,8 +70,9 @@ void writeVector( const FloatVec& vec, const int xLen,const int yLen, const int 
     outFile << yLen << std::endl;
     outFile << cLen << std::endl;
 
-    for ( int i = 0; i < (xLen+yLen+cLen); ++i )
+    for ( int i = 0; i < (xLen*yLen*cLen); ++i ) {
         outFile << vec[i] << std::endl;
+    }
 }
 void writeMatrix(const FloatVec& mat, int rows, int cols, const char* fname )
 {
