@@ -10,7 +10,7 @@ set(PROGS mp1 mp2 mp3 mp4 mp5 mp6)
 set(GENAPPS GenDataMP1 GenDataMP2 GenDataMP4 GenDataMP5 GenDataMP6)
 
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost COMPONENTS thread)
+find_package(Boost COMPONENTS thread system)
 
 find_package(Threads REQUIRED)
 set(TO_BUILD ${PROGS} ${GENAPPS})
