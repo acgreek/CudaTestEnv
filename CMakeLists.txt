@@ -12,6 +12,7 @@ set(GENAPPS GenDataMP1 GenDataMP2 GenDataMP4 GenDataMP5)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Boost COMPONENTS thread)
 
+find_package(Threads REQUIRED)
 set(TO_BUILD ${PROGS} ${GENAPPS})
 set(DEPEND_BT ${PROGS} ) 
 
