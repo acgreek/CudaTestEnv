@@ -2,9 +2,9 @@
 #define CUDA_EMU_HPP
 
 #ifdef __APPLE__
-#include <malloc.h>
-#else 
 #include <string.h>
+#else 
+#include <malloc.h>
 #endif
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
