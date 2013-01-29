@@ -16,8 +16,14 @@ find_package(Threads REQUIRED)
 set(TO_BUILD ${PROGS} ${GENAPPS})
 set(DEPEND_BT ${PROGS} ) 
 
-set(CMAKE_C_FLAGS "-Wall -ggdb3" )
-set(CMAKE_CXX_FLAGS "-std=c++0x" )
+set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_C_FLAGS "-Wall -Wextra -g3 -O0 " )
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -g3 -O0 -std=c++0x" )
+
+if (WIN32 AND __COMPILER_GNU)
+   # mingw-gcc fails to link boost::thread
+   add_definitions(-DBOOST_THREAD_USE_LIB)
+endif (WIN32 AND __COMPILER_GNU)
 
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
