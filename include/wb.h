@@ -199,7 +199,8 @@ struct wbImage_t {
 	int height;
 	int channels;
 	std::vector<float> data;
-	
+	wbImage_t () : data() {
+	}
 };
 
 int wbImage_getWidth(const wbImage_t &image) {
@@ -211,7 +212,7 @@ int wbImage_getHeight(const wbImage_t &image) {
 int  wbImage_getChannels(const wbImage_t &image) {
 	return image.channels;
 }
-float * wbImage_getData(wbImage_t image) {
+float * wbImage_getData(wbImage_t &image) {
 	return &image.data.at(0);
 }
 void wbImage_delete(UNUSED wbImage_t image) {
@@ -222,14 +223,44 @@ wbImage_t wbImage_new(int w, int h, int c) {
 	i.width =w;
 	i.height =h;
 	i.channels =c;
+	i.data.resize(w*h*c, 0.0);
 	return i;
 }
 
 //MP6 image file
-wbImage_t wbImport(UNUSED const char* fname) {
+wbImage_t wbImport(const char* fname) {
 	wbImage_t  i;
-	return i;
+	if (!fname)
+	{
+		std::cout << "No input file given\n";
+		exit(1);
+	}
+	std::ifstream inFile(fname);
 
+	if (!inFile)
+	{
+		std::cout << "Error opening input file: " << fname << " !\n";
+		exit(1);
+	}
+
+	// Read from file
+	int x, y, c;
+
+	inFile >> x;
+	inFile >> y;
+	inFile >> c;
+	i.width =x;
+	i.height =y;
+	i.channels =c;
+
+    	std::string sval;
+    	while (inFile >> sval) {
+		float val;
+        	std::istringstream iss(sval);
+		iss >> val;
+		i.data.push_back(val);
+	}
+	return i;
 }
 ////
 // Timer

@@ -19,6 +19,13 @@ void genVector( FloatVec& vec, const int xLen,const int yLen, const int cLen)
     for ( int i = 0; i < (xLen+yLen+cLen); ++i )
         vec.push_back( genRandomFloat() );
 }
+void genMatrix( FloatVec&mat, int rows, int cols )
+{
+    for ( int r = 0; r < rows; ++r )
+        for ( int c = 0; c < cols; ++c )
+		mat.push_back(genRandomFloat());
+        //    mat[ cols * r + c ] = genRandomFloat();
+}
 
 #define max(A,B) (A> B? A:B)
 #define min(A,B) (A< B? A:B)
@@ -66,17 +73,44 @@ void writeVector( const FloatVec& vec, const int xLen,const int yLen, const int 
     for ( int i = 0; i < (xLen+yLen+cLen); ++i )
         outFile << vec[i] << std::endl;
 }
+void writeMatrix(const FloatVec& mat, int rows, int cols, const char* fname )
+{
+    std::ofstream outFile( fname );
+
+    if ( !outFile )
+    {
+        std::cout << "Error! Opening file: " << fname << " for writing matrix\n";
+        exit(1);
+    }
+
+    std::cout << "Writing matrix to file: " << fname << std::endl;
+
+    outFile << rows << std::endl;
+    outFile << cols << std::endl;
+
+    int idx = 0;
+
+    for ( int r = 0; r < rows; ++r )
+    {
+        for ( int c = 0; c < cols; ++c )
+        {
+            outFile << mat[ idx++ ] << " ";
+        }
+
+        outFile << std::endl;
+    }
+}
 
 int main( int argc, const char** argv )
 {
     // Info for user
 
     std::cout <<argv[0] << ": Generates data files to use as input for assignment MP.\n";
-    std::cout << "Invoke as: " << argv[0] << " [X] [Y] [Channels]\n\n";
+    std::cout << "Invoke as: " << argv[0] << " [X] [Y] [Channels] [MaskX] [MaskY]\n\n";
 
     // Read input
 
-    if ( 4 != argc )
+    if ( 6 != argc )
     {
         std::cout << "Error! Wrong number of arguments to program.\n";
         return 0;
@@ -87,16 +121,21 @@ int main( int argc, const char** argv )
     const int xLen = atoi( argv[1] );
     const int yLen = atoi( argv[2] );
     const int cLen = atoi( argv[3] );
+    const int mXLen = atoi( argv[4] );
+    const int mYLen = atoi( argv[5] );
 
     FloatVec inputImage;
+    FloatVec maskMatrix;
     FloatVec outputImage;
 
     genVector(inputImage, xLen,yLen,cLen);
+    genMatrix(maskMatrix, mXLen, mYLen);
     sumVector(inputImage, outputImage,  xLen,yLen,cLen);
 
     // Write to files
 
     writeVector(inputImage, xLen,yLen,cLen, "imageInput.txt" );
+    writeMatrix(maskMatrix, mXLen,mYLen, "convolutionMatrix.txt" );
     writeVector(outputImage, xLen,yLen,cLen, "imageOutput.txt" );
     return 0;
 }
