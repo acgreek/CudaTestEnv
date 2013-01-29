@@ -29,9 +29,10 @@ I developed this on Cygwin in Windows 7. You will need `g++` (I used version
 
 To build and run my example, simply execute:
 
-    make run
+    cmake .
+    make run1
 
-then the `mp1` binary is created and use the file `foo` as the first and
+then the `mp1` binary is created and uses the file `foo` as the first and
 second argument:
 
     ./mp1 foo foo
