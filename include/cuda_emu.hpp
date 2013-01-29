@@ -1,7 +1,7 @@
 #ifndef CUDA_EMU_HPP
 #define CUDA_EMU_HPP
 
-#include <malloc.h>
+#include <string.h>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
@@ -14,19 +14,36 @@
 
 typedef int cudaError_t;
 
+// Shamelessly copied from http://pastebin.com/TTcbie7F (no license; anonymous author)
+void *aligned_malloc( size_t size, int align )
+{
+    void *mem = malloc( size + (align-1) + sizeof(void*) );
+
+    char *amem = ((char*)mem) + sizeof(void*);
+    amem += align - ((uintptr_t)amem & (align - 1));
+
+    ((void**)amem)[-1] = mem;
+    return amem;
+}
+
+void aligned_free( void *mem )
+{
+    free( ((void**)mem)[-1] );
+}
+// End shameless copy
 
 const static int cudaSuccess = 0;
 
-cudaError_t cudaMalloc(void **ptr, int size)
+cudaError_t cudaMalloc(void **ptr, size_t size)
 {
-	*ptr = memalign(256, size);
+	*ptr = aligned_malloc(size, 256);
 	return cudaSuccess;
 }
 
 cudaError_t cudaMallocPitch(void **ptr, size_t *pitch, size_t width, size_t height)
 {
 	*pitch = (width + 255) & ~255;
-	*ptr = memalign(256, (*pitch) * height);
+	*ptr = aligned_malloc((*pitch) * height, 256);
 	return cudaSuccess;
 }
 
@@ -35,7 +52,7 @@ enum direction_t {
 	cudaMemcpyDeviceToHost
 };
 
-cudaError_t cudaMemcpy(void *dest, void *src, int size, direction_t type UNUSED)
+cudaError_t cudaMemcpy(void *dest, void *src, size_t size, direction_t type UNUSED)
 {
 	memcpy(dest, src, size);
 	return cudaSuccess;
@@ -48,8 +65,8 @@ cudaError_t cudaMemset(void *devPtr, int value, size_t counter)
 
 }
 
-cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch,
-			 int size, int rows, direction_t type UNUSED)
+cudaError_t cudaMemcpy2D(void *dest, size_t dpitch, void *src, size_t spitch,
+			 size_t size, int rows, direction_t type UNUSED)
 {
 	for (int n = 0; n < rows; ++n) {
 		memcpy(dest, src, size);
@@ -61,7 +78,7 @@ cudaError_t cudaMemcpy2D(void *dest, int dpitch, void *src, int spitch,
 
 cudaError_t cudaFree(void *ptr)
 {
-	free(ptr);
+	aligned_free(ptr);
 	return cudaSuccess;
 }
 
