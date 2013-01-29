@@ -30,24 +30,25 @@ void genMatrix( FloatVec&mat, int rows, int cols )
 #define max(A,B) (A> B? A:B)
 #define min(A,B) (A< B? A:B)
 
-float sumAt( FloatVec& in, int xC, int yC, int cC, int xMax, int yMax, int cMax) {
+float sumAt( FloatVec& in,FloatVec& mask, int xC, int yC, int cC, int xMax, int yMax, int cMax) {
     	float sum=0;
 	for (int x = max(xC -2, 0); x < min(xMax,xC+2); x++) {
 		for (int y =max(yC -2,0); y < min(yMax,yC+2); y++) {
 			int index = (y*xMax +x)*cMax + cC;
-			sum+= in[index];
+			sum+= in[index]*mask[y*5+x];
 		}
 	}
 
 	return sum;
 }
-void sumVector( FloatVec& in,FloatVec &out, const int xLen,const int yLen, const int cLen)
+#define UNUSED __attribute__((unused))
+void sumVector( FloatVec& in,FloatVec &out,FloatVec &mask, UNUSED const int mXLen,UNUSED const int mYLen, const int xLen,const int yLen, const int cLen)
 {
     out.clear();
     for ( int x = 0; x < (int) xLen; ++x ) {
 	    for ( int y = 0; y < (int) yLen; ++y) {
 	    	for ( int c = 0; c < (int) cLen; ++c) {
-        		out.push_back(sumAt(in, x,y,c, xLen, yLen, cLen));
+        		out.push_back(sumAt(in,mask, x,y,c, xLen, yLen, cLen));
 		}
 	    }
     }
@@ -131,7 +132,7 @@ int main( int argc, const char** argv )
 
     genVector(inputImage, xLen,yLen,cLen);
     genMatrix(maskMatrix, mXLen, mYLen);
-    sumVector(inputImage, outputImage,  xLen,yLen,cLen);
+    sumVector(inputImage, outputImage,maskMatrix, mXLen, mYLen,  xLen,yLen,cLen);
 
     // Write to files
 
