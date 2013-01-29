@@ -105,6 +105,7 @@ cudaError_t cudaDeviceSynchronize()
 #define __global__
 
 #define __shared__ volatile static
+#define __restrict__ 
 
 
 #define blockIdx getBlockIdx()
@@ -262,5 +263,6 @@ void setupCudaSim(const unsigned blocks_x, const unsigned int blocksize_x,
 	dim3 dimBlock(blocksize_x, 1, 1);
 	setupCudaSim(dimGrid, dimBlock, func);
 }
+
 
 #endif
