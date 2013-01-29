@@ -9,6 +9,8 @@ ADD_DEFINITIONS(-DCUDA_EMU )
 set(PROGS mp1 mp2 mp3 mp4 mp5)
 set(GENAPPS GenDataMP1 GenDataMP2 GenDataMP4 GenDataMP5)
 
+set(Boost_USE_MULTITHREADED ON)
+find_package(Boost COMPONENTS thread)
 
 set(TO_BUILD ${PROGS} ${GENAPPS})
 set(DEPEND_BT ${PROGS} ) 
@@ -23,7 +25,7 @@ foreach(_app ${TO_BUILD})
 endforeach()
 
 foreach(_app ${DEPEND_BT}) 
-	target_link_libraries(${_app}  boost_thread-mt)
+	target_link_libraries(${_app} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 endforeach()
 
 add_custom_command(OUTPUT vecA.txt vecB.txt vecC.txt COMMAND  GenDataMP1 90 DEPENDS GenDataMP1 )
