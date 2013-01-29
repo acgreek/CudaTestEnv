@@ -194,6 +194,43 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
     return fBuf;
 }
 
+struct wbImage_t {
+	int width;
+	int height;
+	int channels;
+	std::vector<float> data;
+	
+};
+
+int wbImage_getWidth(const wbImage_t &image) {
+	return image.width;
+}
+int wbImage_getHeight(const wbImage_t &image) {
+	return image.height;
+}
+int  wbImage_getChannels(const wbImage_t &image) {
+	return image.channels;
+}
+float * wbImage_getData(wbImage_t image) {
+	return &image.data.at(0);
+}
+void wbImage_delete(UNUSED wbImage_t image) {
+}
+
+wbImage_t wbImage_new(int w, int h, int c) {
+	wbImage_t i;
+	i.width =w;
+	i.height =h;
+	i.channels =c;
+	return i;
+}
+
+//MP6 image file
+wbImage_t wbImport(UNUSED const char* fname) {
+	wbImage_t  i;
+	return i;
+
+}
 ////
 // Timer
 ////
@@ -500,4 +537,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
         std::cout << errCnt << " tests failed.\n";
         
     return;
+}
+void wbSolution(UNUSED wbArg_t args, UNUSED wbImage_t &outputImage) {
+    return;
+
 }
