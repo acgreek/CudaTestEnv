@@ -3,7 +3,7 @@
 
 #ifdef __APPLE__
 #include <string.h>
-#else 
+#else
 #include <malloc.h>
 #endif
 #include <boost/bind.hpp>
@@ -13,6 +13,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include "thread_processor.hpp"
+#include "batch_processor.h"
+
+
+using namespace ParallelDo;
 
 #define UNUSED __attribute__((unused))
 
@@ -36,7 +40,7 @@ void aligned_free( void *mem )
     free( ((void**)mem)[-1] );
 }
 // End shameless copy
-#else 
+#else
 #define aligned_malloc  memalign
 #define aligned_free free
 #endif
@@ -105,7 +109,7 @@ cudaError_t cudaDeviceSynchronize()
 #define __global__
 
 #define __shared__ volatile static
-#define __restrict__ 
+#define __restrict__
 
 
 #define blockIdx getBlockIdx()
